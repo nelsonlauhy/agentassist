@@ -103,3 +103,29 @@ body {
     height: auto;
     margin-bottom: 20px;
 }
+
+/* Add this to styles.css for blocks*/
+
+.content-block {
+    border: 2px solid #cc6633;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+    min-height: 250px;
+}
+
+.content-block-large {
+    min-height: 150px;
+    background-color: #f4f4f4; /* Slightly different background for large block */
+}
+
+/* Media query for mobile responsiveness */
+@media (max-width: 768px) {
+    .content-block {
+        min-height: 200px;
+    }
+    
+    .content-block-large {
+        min-height: 100px;
+    }
+}
