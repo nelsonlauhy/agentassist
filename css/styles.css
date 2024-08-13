@@ -1,0 +1,105 @@
+/* css/styles.css */
+
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif; /* Updated font family */
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #d3d3d3; /* Light grey background */
+    color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.3s, opacity 0.3s;
+    opacity: 1; /* Default opacity */
+}
+
+.profile {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid #bbb;
+    color: black; /* Black font color for user name */
+}
+
+.profile img {
+    width: 60px; /* Updated width */
+    height: 60px; /* Updated height */
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.profile h4 {
+    font-size: 16px; /* Decreased font size for user name */
+}
+
+.nav-link {
+    color: black !important; /* Ensure black font color for menu items */
+    font-size: 14px; /* Decreased font size for menu items */
+    display: flex;
+    align-items: center;
+}
+
+.nav-link:hover, .nav-link:focus {
+    background-color: #b0b0b0; /* Darker grey on hover */
+    color: black !important; /* Ensure black font color on hover */
+}
+
+.submenu-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: none;
+    border: none;
+    color: black !important; /* Ensure black font color for toggle button */
+    padding: 0.5rem 1rem;
+    text-align: left;
+}
+
+.submenu-toggle:focus {
+    outline: none;
+}
+
+.content {
+    margin-left: 250px; /* Same as sidebar width */
+    padding: 20px;
+    transition: margin-left 0.3s;
+}
+
+.collapsed-sidebar {
+    margin-left: 50px; /* Increase left margin when sidebar is collapsed */
+}
+
+.sidebar-hidden {
+    opacity: 0;
+    pointer-events: none; /* Prevent interaction when hidden */
+}
+
+.toggle-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: none;
+    border: none;
+    color: black; /* Black color for menu icon */
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.nav-link i {
+    margin-right: 10px;
+    color: #333; /* Dark grey color for icons */
+}
+
+.logo {
+    max-width: 120px; /* Adjusted logo size */
+    height: auto;
+    margin-bottom: 20px;
+}
