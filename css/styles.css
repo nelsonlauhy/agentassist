@@ -164,8 +164,23 @@ body {
     }
 }
 
+/* Adjust table row font size */
 .table.borderless td {
     font-size: 14px; /* Adjust the font size as needed */
     line-height: 1.5; /* Adjust the line height for readability */
     padding: 6px 0; /* Adjust padding for a more compact look */
+}
+
+.table.borderless td:first-child {
+    font-weight: bold; /* Make the date column bold */
+    width: 150px; /* Fixed width for larger screens */
+    min-width: 120px; /* Ensure minimum width on smaller screens */
+    color: #888; /* Change font color to grey */
+}
+
+/* Responsive adjustment for mobile devices */
+@media (max-width: 768px) {
+    .table.borderless td:first-child {
+        min-width: 150px; /* Increase min width for date column on mobile */
+    }
 }
