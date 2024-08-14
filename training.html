@@ -67,10 +67,21 @@
             $('[data-bs-toggle="collapse"]').collapse();
         });
     });
-</script>
 
-<!-- Firebase Configuration and Data Retrieval -->
-<script>
+    // Sidebar toggle script
+    document.getElementById('toggleButton').addEventListener('click', function () {
+        var sidebar = document.getElementById('sidebarMenu');
+        var content = document.getElementById('mainContent');
+        
+        if (sidebar.classList.contains('sidebar-hidden')) {
+            sidebar.classList.remove('sidebar-hidden');
+            content.classList.remove('collapsed-sidebar');
+        } else {
+            sidebar.classList.add('sidebar-hidden');
+            content.classList.add('collapsed-sidebar');
+        }
+    });
+
     // Firebase configuration
     var firebaseConfig = {
         apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
@@ -81,8 +92,8 @@
         messagingSenderId: "353344108954",
         appId: "1:353344108954:web:ee89b147ca641e63b5e223"
     };
- 
-    // Initialize FirebaseC:\Users\nelso\AppData\Local\Programs\Python\Python312\Scripts\
+    
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
