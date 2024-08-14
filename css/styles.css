@@ -135,14 +135,20 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Intensify shadow on hover */
 }
 
+.dashboard-header {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: nowrap; /* Default behavior for larger screens */
+}
+
 @media (max-width: 768px) {
-    .content-block {
-        min-height: 200px; /* Adjusted for smaller screens */
-        min-width: auto; /* Let blocks take full width on smaller screens */
+    .dashboard-header {
+        flex-wrap: wrap; /* On mobile screens, allow wrapping to the next line */
+        align-items: flex-start; /* Align items to the start for proper spacing */
     }
     
-    .content-block-large {
-        min-height: 150px; /* Adjusted for smaller screens */
-        min-width: auto; /* Let large block take full width on smaller screens */
+    .dashboard-header h5 {
+        margin-left: 0; /* Remove left margin for mobile */
+        margin-top: 8px; /* Add some top margin for spacing */
     }
 }
