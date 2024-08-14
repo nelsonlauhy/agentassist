@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="css/styles.css" rel="stylesheet">
+    <!-- Accordion Custom CSS -->
+    <link href="css/custom-accordion.css" rel="stylesheet">
 </head>
 <body>
 
@@ -27,20 +29,27 @@
         <div class="container-fluid">
             <div class="dashboard-header d-flex align-items-end flex-wrap">
                 <h2 class="my-4 mb-0">Training Files</h2>
-            </div>
+            </div><br>
             
-            <!-- Training Files Table -->
-            <table class="table table-striped table-hover mt-4">
-                <thead>
-                    <tr>
-                        <th>Folder</th>
-                        <th>File Name</th>
-                    </tr>
-                </thead>
-                <tbody id="trainingFilesTable">
-                    <!-- Content will be inserted here by JavaScript -->
-                </tbody>
-            </table>
+            <!-- Accordion for Folders -->
+            <div class="accordion" id="trainingFilesAccordion">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying content -->
+    <div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fileModalLabel">File Viewer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBodyContent">
+                    <!-- Content will be injected here based on file type -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -58,6 +67,7 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage-compat.js"></script>
 
 <!-- Firebase Config -->
 <script src="js/firebase-config.js"></script> <!-- Load the external Firebase config -->
@@ -66,7 +76,6 @@
 <script>
     $(function(){
         $("#sidebar-placeholder").load("sidebar.html", function() {
-            // Initialize any Bootstrap components if needed after loading sidebar
             $('[data-bs-toggle="collapse"]').collapse();
         });
     });
@@ -85,21 +94,102 @@
         }
     });
 
-    // Fetch and display training files data
+    // Fetch data from Firebase and build the accordion structure
     db.collection("trainingfiles").orderBy("folder").orderBy("filename").get().then((querySnapshot) => {
-        var tableBody = document.getElementById("trainingFilesTable");
-        querySnapshot.forEach((doc) => {
-            var row = document.createElement("tr");
-            var folderCell = document.createElement("td");
-            folderCell.textContent = doc.data().folder;
-            var fileNameCell = document.createElement("td");
-            fileNameCell.textContent = doc.data().filename;
-            row.appendChild(folderCell);
-            row.appendChild(fileNameCell);
-            tableBody.appendChild(row);
+        var accordion = document.getElementById("trainingFilesAccordion");
+        var dataByFolders = {};
+        
+        // Group data by folders
+        querySnapshot.forEach(doc => {
+            var data = doc.data();
+            if (!dataByFolders[data.folder]) {
+                dataByFolders[data.folder] = [];
+            }
+            
+            // Fetch download URL for each file
+            var fileUrl = `Training/${data.folder}/${data.filename}`;
+            dataByFolders[data.folder].push({ filename: data.filename, url: fileUrl });
         });
+
+        // Build the accordion structure
+        var index = 0;
+        for (const folder in dataByFolders) {
+            const collapseId = `collapse${index}`;
+            const itemId = `heading${index}`;
+            const isFirst = index === 0;
+            const collapseClass = isFirst ? 'collapse show' : 'collapse';
+
+            var newItem = `
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="${itemId}">
+                        <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
+                            ${folder}
+                        </button>
+                    </h2>
+                    <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#trainingFilesAccordion">
+                        <div class="accordion-body">
+                            <ul class="list-unstyled">
+            `;
+
+            dataByFolders[folder].forEach(file => {
+                newItem += `<li><a href="#" data-url="${file.url}" data-filename="${file.filename}" class="file-link">${file.filename}</a></li>`;
+            });
+
+            newItem += `
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            accordion.innerHTML += newItem;
+            index++;
+        }
+
     }).catch((error) => {
         console.log("Error getting documents: ", error);
+    });
+
+    // Script to handle link clicks and open files in the modal
+    document.addEventListener("click", function(e) {
+        if (e.target && e.target.classList.contains("file-link")) {
+            e.preventDefault();
+            var fileUrl = e.target.getAttribute("data-url");
+            var fileName = e.target.getAttribute("data-filename");
+            var modalBody = document.getElementById("modalBodyContent");
+            var fileExtension = fileName.split('.').pop().toLowerCase();
+
+            if (fileExtension === "pdf") {
+                modalBody.innerHTML = `<iframe src="${fileUrl}" width="100%" height="600px"></iframe>`;
+            } else if (fileExtension === "mp4") {
+                modalBody.innerHTML = `<video width="100%" height="600px" controls><source src="${fileUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
+            } else if (fileExtension === "pptx") {
+                modalBody.innerHTML = `<a href="${fileUrl}" target="_blank">Download and view ${fileName}</a>`;
+            } else {
+                modalBody.innerHTML = `<a href="${fileUrl}" target="_blank">Download and view ${fileName}</a>`;
+            }
+
+            var fileModal = new bootstrap.Modal(document.getElementById('fileModal'));
+            fileModal.show();
+        }
+    });
+
+    // Script to Handle Link Click for OPEN button
+    document.addEventListener("DOMContentLoaded", function() {
+        // Firebase Storage reference
+        var storage = firebase.storage();
+
+        // Reference to the specific file
+        var fileRef = storage.ref('Training/FINTRAC 2024/2023 new FINTRAC-FAQs-2023-ENG-final.pdf');
+
+        // Get the download URL for the file
+        fileRef.getDownloadURL().then(function(url) {
+            // Update the link href to point to the file URL
+            document.getElementById('openLink').href = url;
+            document.getElementById('openLink').target = "_blank"; // Open in a new tab
+        }).catch(function(error) {
+            console.error("Error getting file URL: ", error);
+        });
     });
 </script>
 </body>

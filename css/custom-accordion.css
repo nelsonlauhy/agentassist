@@ -1,0 +1,33 @@
+/* css/custom-accordion.css */
+
+/* Apply consistent background color to all accordion buttons (group titles) */
+.accordion-button {
+    background-color: #5578ad; /* Same as the first group title */
+    color: white; /* Ensure text color is readable */
+    font-weight: normal;
+    padding: 8px 16px; 
+}
+
+/* Change the background color when the accordion button is active (expanded) */
+.accordion-button:not(.collapsed) {
+    background-color: #44689d; /* Keep the background color when expanded */
+    color: white; /* Maintain text color */
+}
+
+/* Optional: Adjust hover and focus states for better UX */
+.accordion-button:hover,
+.accordion-button:focus {
+    background-color: #44689d; /* Slightly darker shade on hover/focus */
+    color: white;
+}
+
+/* Change the arrow (chevron) color to white */
+.accordion-button::after {
+    filter: invert(100%); /* This inverts the color, making the arrow white */
+}
+
+/* Reduce the font size in the extended area (accordion body) */
+.accordion-body {
+    font-size: 14px; /* Adjust the font size as needed */
+    color: #333; /* Keep a readable color */
+}
