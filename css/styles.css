@@ -163,3 +163,9 @@ body {
         left: 0px; /* Ensure the toggle button is aligned to the left on smaller screens */
     }
 }
+
+.table.borderless td {
+    font-size: 14px; /* Adjust the font size as needed */
+    line-height: 1.5; /* Adjust the line height for readability */
+    padding: 6px 0; /* Adjust padding for a more compact look */
+}
