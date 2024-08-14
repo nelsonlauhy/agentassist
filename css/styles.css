@@ -151,4 +151,9 @@ body {
         margin-left: 0; /* Remove left margin for mobile */
         margin-top: 8px; /* Add some top margin for spacing */
     }
+
+    .toggle-btn {
+        left: 15px; /* Ensure the toggle button is aligned to the left on smaller screens */
+    }
 }
+
