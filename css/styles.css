@@ -185,3 +185,31 @@ body {
         min-width: 90px; /* Increase min width for date column on mobile */
     }
 }
+
+/* Chatbot Icon Styling */
+.chatbot-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ff6600; /* Orange color */
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slight shadow for depth */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    z-index: 1000; /* Ensure it stays on top of other elements */
+}
+
+.chatbot-icon i {
+    font-size: 24px;
+}
+
+.chatbot-icon:hover {
+    background-color: #cc5200; /* Darker orange on hover */
+}
+
