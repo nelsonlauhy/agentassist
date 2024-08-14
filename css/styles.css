@@ -153,7 +153,7 @@ body {
     }
 
     .toggle-btn {
-        left: 15px; /* Ensure the toggle button is aligned to the left on smaller screens */
+        left: 5px; /* Ensure the toggle button is aligned to the left on smaller screens */
     }
 }
 
