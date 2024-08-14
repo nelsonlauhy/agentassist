@@ -37,26 +37,26 @@
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal for displaying content -->
-    <div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="fileModalLabel">File Viewer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="modalBodyContent">
-                    <!-- Content will be injected here based on file type -->
-                </div>
+<!-- Modal for displaying files -->
+<div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileModalLabel">View File</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                <!-- Content will be injected here -->
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Chatbot Icon -->
-    <div class="chatbot-icon">
-        <i class="bi bi-chat-dots-fill"></i>
-    </div>
+<!-- Chatbot Icon -->
+<div class="chatbot-icon">
+    <i class="bi bi-chat-dots-fill"></i>
 </div>
 
 <!-- Bootstrap JS and Popper.js -->
@@ -105,10 +105,10 @@
             if (!dataByFolders[data.folder]) {
                 dataByFolders[data.folder] = [];
             }
-            
-            // Fetch download URL for each file
-            var fileUrl = `Training/${data.folder}/${data.filename}`;
-            dataByFolders[data.folder].push({ filename: data.filename, url: fileUrl });
+            dataByFolders[data.folder].push({
+                filename: data.filename,
+                folder: data.folder
+            });
         });
 
         // Build the accordion structure
@@ -132,7 +132,7 @@
             `;
 
             dataByFolders[folder].forEach(file => {
-                newItem += `<li><a href="#" data-url="${file.url}" data-filename="${file.filename}" class="file-link">${file.filename}</a></li>`;
+                newItem += `<li><a href="#" class="file-link" data-folder="${file.folder}" data-filename="${file.filename}">${file.filename}</a></li>`;
             });
 
             newItem += `
@@ -150,46 +150,56 @@
         console.log("Error getting documents: ", error);
     });
 
-    // Script to handle link clicks and open files in the modal
+    // Script to Handle File Link Click
     document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("file-link")) {
             e.preventDefault();
-            var fileUrl = e.target.getAttribute("data-url");
+            var folder = e.target.getAttribute("data-folder");
             var fileName = e.target.getAttribute("data-filename");
-            var modalBody = document.getElementById("modalBodyContent");
-            var fileExtension = fileName.split('.').pop().toLowerCase();
 
-            if (fileExtension === "pdf") {
-                modalBody.innerHTML = `<iframe src="${fileUrl}" width="100%" height="600px"></iframe>`;
-            } else if (fileExtension === "mp4") {
-                modalBody.innerHTML = `<video width="100%" height="600px" controls><source src="${fileUrl}" type="video/mp4">Your browser does not support the video tag.</video>`;
-            } else if (fileExtension === "pptx") {
-                modalBody.innerHTML = `<a href="${fileUrl}" target="_blank">Download and view ${fileName}</a>`;
-            } else {
-                modalBody.innerHTML = `<a href="${fileUrl}" target="_blank">Download and view ${fileName}</a>`;
+            console.log("Folder:", folder); // Debugging: Log the folder
+            console.log("Filename:", fileName); // Debugging: Log the filename
+
+            if (!folder || !fileName) {
+                console.error("Folder or filename is missing.");
+                return;
             }
 
-            var fileModal = new bootstrap.Modal(document.getElementById('fileModal'));
-            fileModal.show();
+            // Firebase Storage reference
+            var storage = firebase.storage();
+            var fileRef = storage.ref(`Training/${folder}/${fileName}`);
+
+            fileRef.getDownloadURL().then(function(url) {
+                var modalBody = document.getElementById("modalBodyContent");
+                var fileExtension = fileName.split('.').pop().toLowerCase();
+
+                console.log("File URL:", url); // Log the URL to ensure it's correct
+
+                if (fileExtension === "pdf") {
+                    modalBody.innerHTML = `<iframe src="${url}" width="100%" height="600px"></iframe>`;
+                } else if (fileExtension === "mp4") {
+                    modalBody.innerHTML = `<video id="modalVideo" width="100%" height="600px" controls><source src="${url}" type="video/mp4">Your browser does not support the video tag.</video>`;
+                } else if (fileExtension === "pptx") {
+                    modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
+                } else {
+                    modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
+                }
+
+                var fileModal = new bootstrap.Modal(document.getElementById('fileModal'));
+                fileModal.show();
+            }).catch(function(error) {
+                console.error("Error getting file URL: ", error);
+            });
         }
     });
 
-    // Script to Handle Link Click for OPEN button
-    document.addEventListener("DOMContentLoaded", function() {
-        // Firebase Storage reference
-        var storage = firebase.storage();
-
-        // Reference to the specific file
-        var fileRef = storage.ref('Training/FINTRAC 2024/2023 new FINTRAC-FAQs-2023-ENG-final.pdf');
-
-        // Get the download URL for the file
-        fileRef.getDownloadURL().then(function(url) {
-            // Update the link href to point to the file URL
-            document.getElementById('openLink').href = url;
-            document.getElementById('openLink').target = "_blank"; // Open in a new tab
-        }).catch(function(error) {
-            console.error("Error getting file URL: ", error);
-        });
+    // Pause video when modal is closed
+    document.getElementById('fileModal').addEventListener('hidden.bs.modal', function () {
+        var video = document.getElementById('modalVideo');
+        if (video) {
+            video.pause();
+            video.currentTime = 0; // Optional: Reset the video to the beginning
+        }
     });
 </script>
 </body>
