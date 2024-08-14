@@ -135,6 +135,7 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Intensify shadow on hover */
 }
 
+/* Flexbox adjustments for the dashboard header */
 .dashboard-header {
     display: flex;
     align-items: flex-end;
@@ -153,7 +154,6 @@ body {
     }
 
     .toggle-btn {
-        left: 5px; /* Ensure the toggle button is aligned to the left on smaller screens */
+        left: 0px; /* Ensure the toggle button is aligned to the left on smaller screens */
     }
 }
-
