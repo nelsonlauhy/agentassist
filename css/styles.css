@@ -104,28 +104,45 @@ body {
     margin-bottom: 20px;
 }
 
-/* Add this to styles.css for blocks*/
+/* Refined styles for content blocks with min height and width */
 
 .content-block {
-    border: 2px solid #cc6633;
-    border-radius: 8px;
+    border: none; /* Remove borders */
+    border-radius: 8px; /* Maintain slight rounding for a modern look */
     padding: 20px;
-    background-color: #fff;
-    min-height: 250px;
+    background-color: #ffffff; /* Set background to white */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Apply subtle shadow for depth */
+    transition: box-shadow 0.3s ease; /* Smooth transition for shadow on hover */
+    min-height: 200px; /* Set a minimum height for the blocks */
+    min-width: 250px; /* Set a minimum width for the blocks */
+}
+
+.content-block h6 {
+    font-size: 16px; /* Consistent font size */
+    font-weight: 600; /* Slightly bold for headers */
+    color: #333; /* Dark grey color for text */
+    margin-bottom: 15px; /* Space below header */
 }
 
 .content-block-large {
-    min-height: 150px;
-    background-color: #f4f4f4; /* Slightly different background for large block */
+    min-height: 200px; /* Set a larger min height for the larger block */
+    min-width: 100%; /* Ensure full width for the large block */
+    background-color: #ffffff; /* Match background color with other blocks */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Apply the same shadow */
 }
 
-/* Media query for mobile responsiveness */
+.content-block:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Intensify shadow on hover */
+}
+
 @media (max-width: 768px) {
     .content-block {
-        min-height: 200px;
+        min-height: 200px; /* Adjusted for smaller screens */
+        min-width: auto; /* Let blocks take full width on smaller screens */
     }
     
     .content-block-large {
-        min-height: 100px;
+        min-height: 150px; /* Adjusted for smaller screens */
+        min-width: auto; /* Let large block take full width on smaller screens */
     }
 }
