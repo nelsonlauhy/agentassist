@@ -59,6 +59,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script>
 
+<!-- Firebase Config -->
+<script src="js/firebase-config.js"></script> <!-- Load the external Firebase config -->
+
 <!-- Load Sidebar -->
 <script>
     $(function(){
@@ -81,21 +84,6 @@
             content.classList.add('collapsed-sidebar');
         }
     });
-
-    // Firebase configuration
-    var firebaseConfig = {
-        apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
-        authDomain: "agentassist-72f8e.firebaseapp.com",
-        databaseURL: "https://agentassist-72f8e-default-rtdb.firebaseio.com",
-        projectId: "agentassist-72f8e",
-        storageBucket: "agentassist-72f8e.appspot.com",
-        messagingSenderId: "353344108954",
-        appId: "1:353344108954:web:ee89b147ca641e63b5e223"
-    };
-    
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
 
     // Fetch and display training files data
     db.collection("trainingfiles").orderBy("folder").orderBy("filename").get().then((querySnapshot) => {
