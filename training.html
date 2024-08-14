@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Files</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Sidebar Placeholder -->
+<div id="sidebar-placeholder"></div>
+
+<!-- Main Content -->
+<div class="content" id="mainContent">
+    <!-- Toggle Button for Sidebar -->
+    <button class="toggle-btn" id="toggleButton">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="container-fluid">
+        <img src="images/LivingRealty40.png" alt="Company Logo" class="logo">
+        <div class="container-fluid">
+            <div class="dashboard-header d-flex align-items-end flex-wrap">
+                <h2 class="my-4 mb-0">Training Files</h2>
+            </div>
+            
+            <!-- Training Files Table -->
+            <table class="table table-striped table-hover mt-4">
+                <thead>
+                    <tr>
+                        <th>Folder</th>
+                        <th>File Name</th>
+                    </tr>
+                </thead>
+                <tbody id="trainingFilesTable">
+                    <!-- Content will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Chatbot Icon -->
+    <div class="chatbot-icon">
+        <i class="bi bi-chat-dots-fill"></i>
+    </div>
+</div>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script>
+
+<!-- Load Sidebar -->
+<script>
+    $(function(){
+        $("#sidebar-placeholder").load("sidebar.html", function() {
+            // Initialize any Bootstrap components if needed after loading sidebar
+            $('[data-bs-toggle="collapse"]').collapse();
+        });
+    });
+</script>
+
+<!-- Firebase Configuration and Data Retrieval -->
+<script>
+    // Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
+        authDomain: "agentassist-72f8e.firebaseapp.com",
+        databaseURL: "https://agentassist-72f8e-default-rtdb.firebaseio.com",
+        projectId: "agentassist-72f8e",
+        storageBucket: "agentassist-72f8e.appspot.com",
+        messagingSenderId: "353344108954",
+        appId: "1:353344108954:web:ee89b147ca641e63b5e223"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+
+    // Fetch and display training files data
+    db.collection("trainingfiles").orderBy("folder").orderBy("filename").get().then((querySnapshot) => {
+        var tableBody = document.getElementById("trainingFilesTable");
+        querySnapshot.forEach((doc) => {
+            var row = document.createElement("tr");
+            var folderCell = document.createElement("td");
+            folderCell.textContent = doc.data().folder;
+            var fileNameCell = document.createElement("td");
+            fileNameCell.textContent = doc.data().filename;
+            row.appendChild(folderCell);
+            row.appendChild(fileNameCell);
+            tableBody.appendChild(row);
+        });
+    }).catch((error) => {
+        console.log("Error getting documents: ", error);
+    });
+</script>
+</body>
+</html>
