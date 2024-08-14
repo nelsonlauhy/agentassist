@@ -113,7 +113,7 @@ body {
     background-color: #ffffff; /* Set background to white */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Apply subtle shadow for depth */
     transition: box-shadow 0.3s ease; /* Smooth transition for shadow on hover */
-    min-height: 200px; /* Set a minimum height for the blocks */
+    min-height: 220px; /* Set a minimum height for the blocks */
     min-width: 250px; /* Set a minimum width for the blocks */
 }
 
@@ -125,7 +125,7 @@ body {
 }
 
 .content-block-large {
-    min-height: 200px; /* Set a larger min height for the larger block */
+    min-height: 220px; /* Set a larger min height for the larger block */
     min-width: 100%; /* Ensure full width for the large block */
     background-color: #ffffff; /* Match background color with other blocks */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Apply the same shadow */

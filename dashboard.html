@@ -13,45 +13,8 @@
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebarMenu">
-    <div class="profile">
-        <i class="bi bi-person-circle" style="font-size: 60px; color: #333;"></i> <!-- User icon -->
-        <h4>Nelson Lau</h4>
-    </div>
-    <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item">
-            <a href="#" class="nav-link">
-                <i class="bi bi-envelope"></i> Message Box
-            </a>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link submenu-toggle" data-bs-toggle="collapse" data-bs-target="#formRetrievalSubmenu" aria-expanded="false">
-                <span><i class="bi bi-folder"></i> Form Retrieval</span>
-                <i class="bi bi-chevron-down"></i>
-            </button>
-            <div class="collapse" id="formRetrievalSubmenu">
-                <ul class="nav flex-column ms-3">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link"><i class="bi bi-house"></i> Resale</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link"><i class="bi bi-building"></i> Lease</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link"><i class="bi bi-arrow-repeat"></i> Assignment</a>
-                    </li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="bi bi-book"></i> Training Materials</a>
-        </li>
-        <li class="nav-item">
-            <a href="#" class="nav-link"><i class="bi bi-telephone"></i> Contact Us</a>
-        </li>
-    </ul>
-</div>
+<!-- Sidebar Placeholder -->
+<div id="sidebar-placeholder"></div>
 
 <!-- Main Content -->
 <div class="content" id="mainContent">
@@ -61,36 +24,41 @@
     </button>
     <div class="container-fluid">
         <img src="images/LivingRealty40.png" alt="Company Logo" class="logo">
-        <h2 class="my-4">Dashboard</h2>
-        <h5 class="text-muted">Welcome back, Nelson</h5>
-        <p></p>
-        <!-- Block Container -->
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="content-block">
-                    <h6>Message List (FILO) with links</h6>
-                    <!-- Content will be inserted here -->
-                </div>
+        <div class="container-fluid">
+            <div class="d-flex align-items-end"> <!-- Flexbox container -->
+                <h2 class="my-4 mb-0">Dashboard</h2>
+                <h5 class="text-muted ms-3 mb-1">Welcome back, John Doe</h5> <!-- Adjusted margin for spacing -->
             </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="content-block">
-                    <h6>Training Material Update List with links</h6>
-                    <!-- Content will be inserted here -->
+            <br>
+            <!-- Block Container -->
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="content-block">
+                        <h6>Message List (FILO) with links</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="content-block">
-                    <h6>Common Form List with links</h6>
-                    <!-- Content will be inserted here -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="content-block">
+                        <h6>Training Material Update List with links</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
                 </div>
-            </div>
-            <div class="col-lg-12">
-                <div class="content-block content-block-large">
-                    <h6>System Update / News (no link)</h6>
-                    <!-- Content will be inserted here -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="content-block">
+                        <h6>Common Form List with links</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="content-block content-block-large">
+                        <h6>System Update / News (no link)</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 
@@ -99,6 +67,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Load the sidebar content
+    $(function(){
+        $("#sidebar-placeholder").load("sidebar.html", function() {
+            // Initialize any Bootstrap components if needed after loading sidebar
+            $('[data-bs-toggle="collapse"]').collapse();
+        });
+    });
+
+    // Sidebar toggle script
     document.getElementById('toggleButton').addEventListener('click', function () {
         var sidebar = document.getElementById('sidebarMenu');
         var content = document.getElementById('mainContent');
