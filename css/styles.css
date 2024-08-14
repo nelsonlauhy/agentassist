@@ -140,6 +140,12 @@ body {
     display: flex;
     align-items: flex-end;
     flex-wrap: nowrap; /* Default behavior for larger screens */
+    gap: 10px; /* Add some space between "Dashboard" and "Welcome back" */
+}
+
+.dashboard-header h6 {
+    margin: 0;
+    line-height: 1.2; /* Aligns with the bottom of "Dashboard" */
 }
 
 @media (max-width: 768px) {
@@ -148,9 +154,9 @@ body {
         align-items: flex-start; /* Align items to the start for proper spacing */
     }
     
-    .dashboard-header h5 {
+    .dashboard-header h6 {
         margin-left: 0; /* Remove left margin for mobile */
-        margin-top: 8px; /* Add some top margin for spacing */
+        margin-top: 0px; /* Add some top margin for spacing */
     }
 
     .toggle-btn {
