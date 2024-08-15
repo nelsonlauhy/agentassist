@@ -53,3 +53,62 @@
     padding: 0; /* Remove any internal padding */
     margin: 0; /* Remove default margin */
 }
+
+.resizable-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.left-panel,
+.right-panel {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.left-panel {
+    width: 35%;
+    min-width: 200px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+}
+
+.right-panel {
+    width: 65%;
+    height: 95%;
+    min-width: 300px;
+    background-color: #ffffff;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    border-left: 2px solid #cccccc;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#separator {
+    width: 5px;
+    cursor: ew-resize;
+    background-color: #cccccc;
+    height: 95%;
+    position: relative;
+}
+
+.accordion-button {
+    padding: 6px 12px;
+}
+
+#pdfPreview {
+    flex: 1; /* Allow it to take up all available space */
+    display: flex;
+    flex-direction: column;
+}
+
+#pdfPreview iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+}

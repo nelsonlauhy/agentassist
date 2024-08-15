@@ -101,7 +101,9 @@ body {
 .logo {
     max-width: 120px; /* Adjusted logo size */
     height: auto;
-    margin-bottom: 20px;
+    margin: 0 auto; /* Center horizontally */
+    display: block; /* Ensures it behaves as a block-level element */
+    padding-top: 30px;
 }
 
 /* Refined styles for content blocks with min height and width */
