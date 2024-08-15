@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Retrieval - Resale Freehold</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+    <!-- Accordion Custom CSS -->
+    <link href="css/custom-accordion-form.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
+
+    <!-- Main Content -->
+    <div class="content" id="mainContent">
+        <!-- Toggle Button for Sidebar -->
+        <button class="toggle-btn" id="toggleButton">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="resizable-container">
+            <!-- Left Section: Accordion for Stages -->
+            <div class="left-panel">
+                <h2 class="mb-4">Form Retrieval - Resale Freehold</h2>
+                <div class="accordion" id="formFlowAccordion">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Movable Separator -->
+            <div id="separator"></div>
+
+            <!-- Right Section: PDF Preview -->
+            <div class="right-panel" id="previewSection">
+                <div id="pdfPreview">
+                    <p></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Chatbot Icon -->
+    <div class="chatbot-icon">
+        <i class="bi bi-chat-dots-fill"></i>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script src="js/firebase-config.js"></script> <!-- Load the external Firebase config -->
+
+    <!-- Load Sidebar -->
+    <script>
+        $(function () {
+            $("#sidebar-placeholder").load("sidebar.html", function () {
+                $('[data-bs-toggle="collapse"]').collapse();
+            });
+        });
+
+        // Sidebar toggle script
+        document.getElementById('toggleButton').addEventListener('click', function () {
+            var sidebar = document.getElementById('sidebarMenu');
+            var content = document.getElementById('mainContent');
+
+            if (sidebar.classList.contains('sidebar-hidden')) {
+                sidebar.classList.remove('sidebar-hidden');
+                content.classList.remove('collapsed-sidebar');
+            } else {
+                sidebar.classList.add('sidebar-hidden');
+                content.classList.add('collapsed-sidebar');
+            }
+        });
+
+        // Fetch data from Firebase and build the accordion structure
+        db.collection("formflow")
+            .where("transactiontypename", "==", "Resale")
+            .where("ownershiptypename", "==", "Freehold")
+            .where("propertytypename", "==", "Single-family")
+            .get()
+            .then((querySnapshot) => {
+                var dataByStage = {
+                    "Pre-Offer": [],
+                    "Offer": [],
+                    "Post-Offer": []
+                };
+
+                // Group data by stage names
+                querySnapshot.forEach(doc => {
+                    var data = doc.data();
+                    if (dataByStage[data.stagename]) {
+                        dataByStage[data.stagename].push({
+                            formfullname: data.formfullname,  // Use formfullname for display
+                            formpath: data.formpath
+                        });
+                    }
+                });
+
+                // Build the accordion structure
+                var accordion = document.getElementById("formFlowAccordion");
+                var stageIndex = 0;
+                for (const stage in dataByStage) {
+                    const collapseId = `collapseStage${stageIndex}`;
+                    const itemId = `headingStage${stageIndex}`;
+                    const isFirst = stageIndex === 0;
+                    const collapseClass = isFirst ? 'collapse show' : 'collapse';
+
+                    var newItem = `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="${itemId}">
+                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
+                                    ${stage}
+                                </button>
+                            </h2>
+                            <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-unstyled">
+                    `;
+
+                    dataByStage[stage].forEach(file => {
+                        newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></li>`;
+                    });
+
+                    newItem += `
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    accordion.innerHTML += newItem;
+                    stageIndex++;
+                }
+            }).catch((error) => {
+                console.log("Error getting documents: ", error);
+            });
+
+        // Script to Handle File Link Click
+        document.addEventListener("click", function (e) {
+            if (e.target && e.target.classList.contains("file-link")) {
+                e.preventDefault();
+                var formpath = e.target.getAttribute("data-formpath");
+
+                if (!formpath) {
+                    console.error("Form path is missing.");
+                    return;
+                }
+
+                // Firebase Storage reference
+                var storage = firebase.storage();
+                var fileRef = storage.ref(formpath);
+
+                fileRef.getDownloadURL().then(function (url) {
+                    var pdfPreview = document.getElementById("pdfPreview");
+                    pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="100%"></iframe>`;
+                }).catch(function (error) {
+                    console.error("Error getting file URL: ", error);
+                });
+            }
+        });
+
+        // JavaScript to handle resizable panels
+        const separator = document.getElementById('separator');
+        const leftPanel = document.querySelector('.left-panel');
+        const rightPanel = document.querySelector('.right-panel');
+
+        let isDragging = false;
+        let startX, startLeftWidth;
+
+        separator.addEventListener('mousedown', function (e) {
+            isDragging = true;
+            startX = e.clientX;
+            startLeftWidth = leftPanel.getBoundingClientRect().width;
+            document.body.style.cursor = 'ew-resize';
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            const containerWidth = document.querySelector('.resizable-container').clientWidth;
+            const newLeftWidth = ((startLeftWidth + deltaX) / containerWidth) * 100;
+
+            if (newLeftWidth > 10 && newLeftWidth < 90) { // Prevent panels from being too small or too large
+                leftPanel.style.width = `${newLeftWidth}%`;
+                rightPanel.style.width = `${100 - newLeftWidth}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', function () {
+            isDragging = false;
+            document.body.style.cursor = 'default';
+        });
+    </script>
+</body>
+
+</html>

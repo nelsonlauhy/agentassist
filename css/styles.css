@@ -22,20 +22,20 @@ body {
 
 .profile {
     text-align: center;
-    padding: 20px;
-    border-bottom: 1px solid #bbb;
+    padding: 10px;
+    border-bottom: 0px solid #bbb;
     color: black; /* Black font color for user name */
 }
 
 .profile img {
-    width: 60px; /* Updated width */
-    height: 60px; /* Updated height */
+    width: 30px; /* Updated width */
+    height: 30px; /* Updated height */
     border-radius: 50%;
     margin-bottom: 10px;
 }
 
-.profile h4 {
-    font-size: 16px; /* Decreased font size for user name */
+.profile h5 {
+    font-size: 14px; /* Decreased font size for user name */
 }
 
 .nav-link {
@@ -58,7 +58,7 @@ body {
     background: none;
     border: none;
     color: black !important; /* Ensure black font color for toggle button */
-    padding: 0.5rem 1rem;
+    padding: 0.5 rem 1rem;
     text-align: left;
 }
 
@@ -83,7 +83,7 @@ body {
 
 .toggle-btn {
     position: absolute;
-    top: 10px;
+    top: 5px;
     left: 10px;
     z-index: 1000;
     background: none;
@@ -103,7 +103,7 @@ body {
     height: auto;
     margin: 0 auto; /* Center horizontally */
     display: block; /* Ensures it behaves as a block-level element */
-    padding-top: 30px;
+    padding-top: 40px;
 }
 
 /* Refined styles for content blocks with min height and width */
@@ -212,6 +212,6 @@ body {
 }
 
 .chatbot-icon:hover {
-    background-color: #db0505; /* Darker orange on hover */
+    background-color: #ffc710; /* Darker orange on hover */
 }
 
