@@ -12,6 +12,36 @@
     <link href="css/styles.css" rel="stylesheet">
     <!-- Accordion Custom CSS -->
     <link href="css/custom-accordion-form.css" rel="stylesheet">
+    <!-- Resizable Split CSS -->
+    <style>
+        #separator {
+            width: 5px;
+            background-color: #cccccc;
+            cursor: ew-resize;
+            position: relative;
+        }
+
+        .resizable-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .left-panel, .right-panel {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+    </style>
 </head>
 <body>
 
@@ -24,31 +54,24 @@
     <button class="toggle-btn" id="toggleButton">
         <i class="bi bi-list"></i>
     </button>
-    <div class="container-fluid">
-        <img src="images/LivingRealty40.png" alt="Company Logo" class="logo">
-        <div class="container-fluid">
-            <div class="dashboard-header d-flex align-items-end flex-wrap">
-                <h2 class="my-4 mb-0">Form Retrieval - Resale</h2>
-            </div><br>
-            
-            <!-- Accordion for Stages -->
+    <div class="resizable-container">
+        <!-- Left Section: Accordion for Stages -->
+        <div class="left-panel">
+            <img src="images/LivingRealty40.png" alt="Company Logo" class="logo mb-3">
+            <h2 class="mb-4">Form Retrieval - Resale</h2>
             <div class="accordion" id="formFlowAccordion">
                 <!-- Dynamic content will be inserted here -->
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Modal for displaying files -->
-<div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fileModalLabel">View File</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalBodyContent">
-                <!-- Content will be injected here -->
+        <!-- Movable Separator -->
+        <div id="separator"></div>
+
+        <!-- Right Section: PDF Preview -->
+        <div class="right-panel" id="previewSection">
+            <h4 class="mb-3">Preview</h4>
+            <div id="pdfPreview">
+                <p>Select a file to preview it here.</p>
             </div>
         </div>
     </div>
@@ -113,8 +136,7 @@
             if (dataByStage[data.stagename]) {
                 dataByStage[data.stagename].push({
                     formfullname: data.formfullname,  // Use formfullname for display
-                    filename: data.filename,
-                    folder: data.folder
+                    formpath: data.formpath
                 });
             }
         });
@@ -141,7 +163,7 @@
             `;
 
             dataByStage[stage].forEach(file => {
-                newItem += `<li><a href="#" class="file-link" data-folder="${file.folder}" data-filename="${file.filename}">${file.formfullname}</a></li>`;
+                newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></li>`;
             });
 
             newItem += `
@@ -162,47 +184,50 @@
     document.addEventListener("click", function(e) {
         if (e.target && e.target.classList.contains("file-link")) {
             e.preventDefault();
-            var folder = e.target.getAttribute("data-folder");
-            var fileName = e.target.getAttribute("data-filename");
+            var formpath = e.target.getAttribute("data-formpath");
 
-            if (!folder || !fileName) {
-                console.error("Folder or filename is missing.");
+            if (!formpath) {
+                console.error("Form path is missing.");
                 return;
             }
 
             // Firebase Storage reference
             var storage = firebase.storage();
-            var fileRef = storage.ref(`FormFlow/${folder}/${fileName}`);
+            var fileRef = storage.ref(formpath);
 
             fileRef.getDownloadURL().then(function(url) {
-                var modalBody = document.getElementById("modalBodyContent");
-                var fileExtension = fileName.split('.').pop().toLowerCase();
-
-                if (fileExtension === "pdf") {
-                    modalBody.innerHTML = `<iframe src="${url}" width="100%" height="600px"></iframe>`;
-                } else if (fileExtension === "mp4") {
-                    modalBody.innerHTML = `<video id="modalVideo" width="100%" height="600px" controls><source src="${url}" type="video/mp4">Your browser does not support the video tag.</video>`;
-                } else if (fileExtension === "pptx") {
-                    modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
-                } else {
-                    modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
-                }
-
-                var fileModal = new bootstrap.Modal(document.getElementById('fileModal'));
-                fileModal.show();
+                var pdfPreview = document.getElementById("pdfPreview");
+                pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="800px"></iframe>`;
             }).catch(function(error) {
                 console.error("Error getting file URL: ", error);
             });
         }
     });
 
-    // Pause video when modal is closed
-    document.getElementById('fileModal').addEventListener('hidden.bs.modal', function () {
-        var video = document.getElementById('modalVideo');
-        if (video) {
-            video.pause();
-            video.currentTime = 0; // Optional: Reset the video to the beginning
-        }
+    // JavaScript to handle resizable panels
+    const separator = document.getElementById('separator');
+    const leftPanel = document.querySelector('.left-panel');
+    const rightPanel = document.querySelector('.right-panel');
+
+    let isDragging = false;
+
+    separator.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        document.body.style.cursor = 'ew-resize';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const containerWidth = document.querySelector('.resizable-container').clientWidth;
+        const leftPanelWidth = e.clientX / containerWidth * 100;
+        leftPanel.style.flex = `0 0 ${leftPanelWidth}%`;
+        rightPanel.style.flex = `0 0 ${100 - leftPanelWidth}%`;
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        document.body.style.cursor = 'default';
     });
 </script>
 </body>

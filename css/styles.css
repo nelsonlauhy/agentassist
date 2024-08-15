@@ -191,7 +191,7 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #ff6600; /* Orange color */
+    background-color: #db0505; /* Orange color */
     color: white;
     width: 60px;
     height: 60px;
@@ -210,6 +210,6 @@ body {
 }
 
 .chatbot-icon:hover {
-    background-color: #cc5200; /* Darker orange on hover */
+    background-color: #db0505; /* Darker orange on hover */
 }
 

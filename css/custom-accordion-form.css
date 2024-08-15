@@ -5,8 +5,10 @@
     background-color: #a9a9ac; /* Same as the first group title */
     color: white; /* Ensure text color is readable */
     font-weight: normal;
-    padding: 8px 16px; 
+    padding: 6px 12px; /* Reduce padding to decrease row height */
+    font-size: 14px; /* Reduce font size for more compact titles */
 }
+
 
 /* Change the background color when the accordion button is active (expanded) */
 .accordion-button:not(.collapsed) {
@@ -28,12 +30,26 @@
 
 /* Reduce the font size in the extended area (accordion body) */
 .accordion-body {
-    font-size: 14px; /* Adjust the font size as needed */
+    font-size: 13px; /* Adjust the font size as needed */
     color: #333; /* Keep a readable color */
+    padding: 8px 16px; /* Reduce padding inside the body */
 }
 
 /* Increase line spacing for filename list items */
 .accordion-body ul.list-unstyled li {
-    margin-bottom: 8px; /* Adjust this value for desired spacing */
-    line-height: 1.5; /* You can also adjust the line-height for better readability */
+    margin-bottom: 4px; /* Decrease margin to reduce spacing between lines */
+    padding: 4px 0; /* Add a small padding for better appearance */
+    line-height: 1.4; /* Adjust line-height for more compact readability */
+    border-bottom: 1px solid #ddd; /* Separator for better distinction */
+}
+
+/* Ensure that last list item does not have a border */
+.accordion-body ul.list-unstyled li:last-child {
+    border-bottom: none;
+}
+
+/* Adjust modal padding and spacing */
+.modal-body iframe {
+    padding: 0; /* Remove any internal padding */
+    margin: 0; /* Remove default margin */
 }
