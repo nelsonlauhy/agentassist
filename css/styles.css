@@ -34,6 +34,11 @@ body {
     margin-bottom: 10px;
 }
 
+.profile i {
+    font-size: 40px; /* Adjust this value to control the size of the icon */
+    color: #333;
+}
+
 .profile h5 {
     font-size: 14px; /* Decreased font size for user name */
 }

@@ -1,28 +1,24 @@
-/* Apply consistent background color to all accordion buttons (group titles) */
 .accordion-button {
-    background-color: #a9a9ac; /* Same as the first group title */
-    color: white; /* Ensure text color is readable */
+    background-color: #a9a9ac;
+    color: white;
     font-weight: normal;
-    padding: 6px 12px; /* Reduce padding to decrease row height */
-    font-size: 14px; /* Reduce font size for more compact titles */
+    padding: 6px 12px; 
+    font-size: 14px;
 }
 
-/* Change the background color when the accordion button is active (expanded) */
 .accordion-button:not(.collapsed) {
-    background-color: #a9a9ac; /* Keep the background color when expanded */
-    color: white; /* Maintain text color */
-}
-
-/* Optional: Adjust hover and focus states for better UX */
-.accordion-button:hover,
-.accordion-button:focus {
-    background-color: #a9a9ac; /* Slightly darker shade on hover/focus */
+    background-color: #a9a9ac;
     color: white;
 }
 
-/* Change the arrow (chevron) color to white */
+.accordion-button:hover,
+.accordion-button:focus {
+    background-color: #a9a9ac; 
+    color: white;
+}
+
 .accordion-button::after {
-    filter: invert(100%); /* This inverts the color, making the arrow white */
+    filter: invert(100%); 
 }
 
 /* Reduce the font size in the extended area (accordion body) */
@@ -74,7 +70,7 @@
 
 .right-panel {
     width: 65%;
-    height: 100%; /* Ensure the right panel takes full height */
+    height: 95%; /* Ensure the right panel takes full height */
     min-width: 300px;
     background-color: #ffffff;
     padding: 0; /* Remove extra padding */
@@ -88,7 +84,7 @@
     width: 5px;
     cursor: ew-resize;
     background-color: #cccccc;
-    height: 100%; /* Ensure the separator takes full height */
+    height: 95%; /* Ensure the separator takes full height */
     position: relative;
 }
 

@@ -24,10 +24,11 @@
             <i class="bi bi-list"></i>
         </button>
 
-        <div class="resizable-container" id="mainContainer">
+        <div class="resizable-container">
             <!-- Left Section: Accordion for Stages -->
-            <div class="left-panel" id="leftPanel">
-                <h2 class="mb-4">Form Retrieval - Resale Freehold</h2>
+            <div class="left-panel">
+                <h2 class="mb-4">Form Retrieval</h2>
+                <h6>Resale Freehold</h6>
                 <div class="accordion" id="formFlowAccordion">
                     <!-- Dynamic content will be inserted here -->
                 </div>
@@ -39,22 +40,7 @@
             <!-- Right Section: PDF Preview -->
             <div class="right-panel" id="previewSection">
                 <div id="pdfPreview">
-                    <p>Select a file to preview it here.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal for Mobile PDF Preview -->
-    <div class="modal fade" id="mobilePreviewModal" tabindex="-1" aria-labelledby="mobilePreviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="mobilePreviewModalLabel">File Preview</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="mobileModalBodyContent">
-                    <!-- Content will be injected here -->
+                    <p></p>
                 </div>
             </div>
         </div>
@@ -63,6 +49,21 @@
     <!-- Chatbot Icon -->
     <div class="chatbot-icon">
         <i class="bi bi-chat-dots-fill"></i>
+    </div>
+
+    <!-- Mobile Preview Modal -->
+    <div class="modal fade" id="mobilePreviewModal" tabindex="-1" aria-labelledby="mobilePreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mobilePreviewModalLabel">Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="mobileModalBodyContent">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
@@ -99,6 +100,11 @@
                 content.classList.add('collapsed-sidebar');
             }
         });
+
+        // Detect screen width and switch between desktop and mobile modes
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
 
         // Fetch data from Firebase and build the accordion structure
         db.collection("formflow")
@@ -179,14 +185,16 @@
                 var fileRef = storage.ref(formpath);
 
                 fileRef.getDownloadURL().then(function (url) {
-                    if (window.innerWidth < 768) { // Mobile mode
-                        var modalBody = document.getElementById("mobileModalBodyContent");
-                        modalBody.innerHTML = `<iframe src="${url}" width="100%" height="400px"></iframe>`;
+                    if (isMobile()) {
+                        // Mobile view: Display preview in a modal
+                        var modalBodyContent = document.getElementById("mobileModalBodyContent");
+                        modalBodyContent.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border: none;"></iframe>`;
                         var mobileModal = new bootstrap.Modal(document.getElementById('mobilePreviewModal'));
                         mobileModal.show();
-                    } else { // Desktop mode
+                    } else {
+                        // Desktop view: Display preview on the right panel
                         var pdfPreview = document.getElementById("pdfPreview");
-                        pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="100%"></iframe>`;
+                        pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border: none;"></iframe>`;
                     }
                 }).catch(function (error) {
                     console.error("Error getting file URL: ", error);
@@ -194,58 +202,52 @@
             }
         });
 
-        // JavaScript to handle resizable panels
+        // JavaScript to handle resizable panels in desktop view
         const separator = document.getElementById('separator');
         const leftPanel = document.querySelector('.left-panel');
         const rightPanel = document.querySelector('.right-panel');
-        const mainContainer = document.getElementById('mainContainer');
-
         let isDragging = false;
         let startX, startLeftWidth;
 
-        separator.addEventListener('mousedown', function (e) {
-            isDragging = true;
-            startX = e.clientX;
-            startLeftWidth = leftPanel.getBoundingClientRect().width;
-            document.body.style.cursor = 'ew-resize';
-            e.preventDefault();
-        });
+        if (!isMobile()) {
+            separator.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                startX = e.clientX;
+                startLeftWidth = leftPanel.getBoundingClientRect().width;
+                document.body.style.cursor = 'ew-resize';
 
-        document.addEventListener('mousemove', function (e) {
-            if (!isDragging) return;
-            const deltaX = e.clientX - startX;
-            const containerWidth = mainContainer.clientWidth;
-            const newLeftWidth = ((startLeftWidth + deltaX) / containerWidth) * 100;
+                // Temporarily disable pointer events for the iframe during resizing
+                const iframeElement = rightPanel.querySelector('iframe');
+                if (iframeElement) {
+                    iframeElement.style.pointerEvents = 'none';
+                }
 
-            if (newLeftWidth > 10 && newLeftWidth < 90) { // Prevent panels from being too small or too large
-                leftPanel.style.width = `${newLeftWidth}%`;
-                rightPanel.style.width = `${100 - newLeftWidth}%`;
-            }
-        });
+                e.preventDefault();
+            });
 
-        document.addEventListener('mouseup', function () {
-            isDragging = false;
-            document.body.style.cursor = 'default';
-        });
+            document.addEventListener('mousemove', function (e) {
+                if (!isDragging) return;
+                const deltaX = e.clientX - startX;
+                const containerWidth = document.querySelector('.resizable-container').clientWidth;
+                const newLeftWidth = ((startLeftWidth + deltaX) / containerWidth) * 100;
 
-        // Detect screen size changes and adjust layout
-        function adjustLayoutForMobile() {
-            if (window.innerWidth < 768) {
-                separator.style.display = 'none';
-                rightPanel.style.display = 'none';
-                leftPanel.style.width = '100%';
-            } else {
-                separator.style.display = 'block';
-                rightPanel.style.display = 'block';
-                leftPanel.style.width = '35%';
-                rightPanel.style.width = '65%';
-            }
+                if (newLeftWidth > 10 && newLeftWidth < 90) { // Prevent panels from being too small or too large
+                    leftPanel.style.width = `${newLeftWidth}%`;
+                    rightPanel.style.width = `${100 - newLeftWidth}%`;
+                }
+            });
+
+            document.addEventListener('mouseup', function () {
+                isDragging = false;
+                document.body.style.cursor = 'default';
+
+                // Re-enable pointer events for the iframe after resizing
+                const iframeElement = rightPanel.querySelector('iframe');
+                if (iframeElement) {
+                    iframeElement.style.pointerEvents = 'auto';
+                }
+            });
         }
-
-        // Run on load and resize
-        adjustLayoutForMobile();
-        window.addEventListener('resize', adjustLayoutForMobile);
     </script>
 </body>
-
 </html>
