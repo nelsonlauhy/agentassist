@@ -29,6 +29,45 @@
             <div class="left-panel">
                 <h2 class="mb-4">Form Retrieval</h2>
                 <h6>Resale Freehold</h6>
+
+                <!-- Filter Options Button and Section -->
+                <div class="filter-section mb-4">
+                    <button class="btn btn-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="true" aria-controls="filterOptions">
+                        Filter Options
+                    </button>
+                    <div id="filterOptions" class="collapse show">
+                        <div class="card card-body mt-3">
+                            <!-- Filter Form Fields -->
+                            <div class="mb-3">
+                                <label for="ownership" class="form-label">Ownership</label>
+                                <select class="form-select" id="ownership">
+                                    <option selected>Select Ownership</option>
+                                    <option value="1">Freehold</option>
+                                    <option value="2">Condo</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="property" class="form-label">Property Type</label>
+                                <select class="form-select" id="property">
+                                    <option selected>Select Property Type</option>
+                                    <option value="1">Single-family</option>
+                                    <option value="2">Multi-family</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="representative" class="form-label">Representative Type</label>
+                                <select class="form-select" id="representative">
+                                    <option selected>Select Representative Type</option>
+                                    <option value="1">Buyer Representative</option>
+                                    <option value="2">Seller Representative</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion for Stages -->
                 <div class="accordion" id="formFlowAccordion">
                     <!-- Dynamic content will be inserted here -->
                 </div>
