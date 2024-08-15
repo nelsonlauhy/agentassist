@@ -1,5 +1,3 @@
-/* css/custom-accordion.css */
-
 /* Apply consistent background color to all accordion buttons (group titles) */
 .accordion-button {
     background-color: #a9a9ac; /* Same as the first group title */
@@ -8,7 +6,6 @@
     padding: 6px 12px; /* Reduce padding to decrease row height */
     font-size: 14px; /* Reduce font size for more compact titles */
 }
-
 
 /* Change the background color when the accordion button is active (expanded) */
 .accordion-button:not(.collapsed) {
@@ -43,7 +40,7 @@
     border-bottom: 1px solid #ddd; /* Separator for better distinction */
 }
 
-/* Ensure that last list item does not have a border */
+/* Ensure that the last list item does not have a border */
 .accordion-body ul.list-unstyled li:last-child {
     border-bottom: none;
 }
@@ -54,6 +51,7 @@
     margin: 0; /* Remove default margin */
 }
 
+/* Resizable container structure for left and right panels */
 .resizable-container {
     display: flex;
     height: 100vh;
@@ -76,13 +74,10 @@
 
 .right-panel {
     width: 65%;
-    height: 95%;
+    height: 100%; /* Ensure the right panel takes full height */
     min-width: 300px;
     background-color: #ffffff;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-top: 0px;
-    padding-bottom: 0px;
+    padding: 0; /* Remove extra padding */
     border-left: 2px solid #cccccc;
     flex: 1;
     display: flex;
@@ -93,22 +88,60 @@
     width: 5px;
     cursor: ew-resize;
     background-color: #cccccc;
-    height: 95%;
+    height: 100%; /* Ensure the separator takes full height */
     position: relative;
 }
 
+/* Adjust padding for accordion button */
 .accordion-button {
     padding: 6px 12px;
 }
 
+/* PDF Preview panel configuration */
 #pdfPreview {
     flex: 1; /* Allow it to take up all available space */
     display: flex;
     flex-direction: column;
 }
 
+/* Ensure iframe takes full height and width */
 #pdfPreview iframe {
     flex: 1;
     width: 100%;
     border: none;
+}
+
+/* Mobile view adjustments */
+@media (max-width: 768px) {
+    .left-panel {
+        width: 100%; /* Set to full width on mobile */
+    }
+
+    .right-panel {
+        display: none; /* Hide the right panel on mobile */
+    }
+
+    #separator {
+        display: none; /* Hide the separator on mobile */
+    }
+
+    #mobilePreviewModal .modal-dialog {
+        max-width: 100%;
+        height: 100%;
+        margin: 0;
+    }
+
+    #mobilePreviewModal .modal-content {
+        height: 100%;
+    }
+
+    #mobilePreviewModal .modal-body {
+        padding: 0;
+        height: calc(100% - 56px); /* Adjust height to fit modal header */
+    }
+
+    #mobileModalBodyContent iframe {
+        height: 100%; /* Ensures the iframe takes full modal body height */
+        width: 100%;
+    }
 }
