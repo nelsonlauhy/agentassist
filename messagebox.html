@@ -129,7 +129,7 @@
                                     </div>
                                     <i class="bi bi-chevron-right"></i>
                                 </div>
-                                <div class="d-none message-url" data-url="${data.contenturl}"></div>
+                                <div class="d-none message-id" data-id="${data.campaignid}"></div>
                             </div>
                         `;
                         messageList.innerHTML += messageItem;
@@ -144,21 +144,28 @@
                     const messageHeaders = document.querySelectorAll(".message-header");
                     messageHeaders.forEach(header => {
                         header.addEventListener("click", function () {
-                            const url = this.querySelector(".message-url").getAttribute("data-url");
+                            const campaignId = this.querySelector(".message-id").getAttribute("data-id");
+                            const pdfPath = `messagebox/${campaignId}.pdf`;
 
                             // Highlight the selected message and remove highlight from others
                             messageHeaders.forEach(h => h.classList.remove("selected"));
                             this.classList.add("selected");
 
-                            if (isMobile()) {
-                                // Mobile view: Show content in a modal
-                                document.getElementById("mobileMessageIframe").src = url;
-                                const mobileModal = new bootstrap.Modal(document.getElementById("mobileMessageModal"));
-                                mobileModal.show();
-                            } else {
-                                // Desktop view: Load the message content in the right panel iframe
-                                document.getElementById("messageIframe").src = url;
-                            }
+                            // Load the PDF from Firebase Storage
+                            const storageRef = firebase.storage().ref(pdfPath);
+                            storageRef.getDownloadURL().then(function (url) {
+                                if (isMobile()) {
+                                    // Mobile view: Show content in a modal
+                                    document.getElementById("mobileMessageIframe").src = url;
+                                    const mobileModal = new bootstrap.Modal(document.getElementById("mobileMessageModal"));
+                                    mobileModal.show();
+                                } else {
+                                    // Desktop view: Load the message content in the right panel iframe
+                                    document.getElementById("messageIframe").src = url;
+                                }
+                            }).catch(function (error) {
+                                console.error("Error fetching PDF file:", error);
+                            });
                         });
                     });
                 }).catch((error) => {
