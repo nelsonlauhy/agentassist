@@ -2,23 +2,23 @@
 
 /* Apply consistent background color to all accordion buttons (group titles) */
 .accordion-button {
-    background-color: #728cb3; /* Same as the first group title */
-    color: white; /* Ensure text color is readable */
-    font-weight: normal;
+    background-color: #c1d7fb; /* Same as the first group title */
+    color: black; /* Ensure text color is readable */
+    font-weight: black;
     padding: 8px 16px; 
 }
 
 /* Change the background color when the accordion button is active (expanded) */
 .accordion-button:not(.collapsed) {
-    background-color: #728cb3; /* Keep the background color when expanded */
-    color: white; /* Maintain text color */
+    background-color: #c1d7fb; /* Keep the background color when expanded */
+    color: black; /* Maintain text color */
 }
 
 /* Optional: Adjust hover and focus states for better UX */
 .accordion-button:hover,
 .accordion-button:focus {
-    background-color: #728cb3; /* Slightly darker shade on hover/focus */
-    color: white;
+    background-color: #c1d7fb; /* Slightly darker shade on hover/focus */
+    color: black;
 }
 
 /* Change the arrow (chevron) color to white */
