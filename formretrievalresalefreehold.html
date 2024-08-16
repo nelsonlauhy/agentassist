@@ -27,45 +27,51 @@
         <div class="resizable-container">
             <!-- Left Section: Accordion for Stages -->
             <div class="left-panel">
-                <h2 class="mb-4">Form Retrieval</h2>
-                <h6>Resale Freehold</h6>
+                <h2 class="mb-4">Form Retrieval - Resale</h2>
 
                 <!-- Filter Options Button and Section -->
                 <div class="filter-section mb-4">
-                    <button class="btn btn-primary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="true" aria-controls="filterOptions">
+                    <button class="btn btn-light w-40 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="false" aria-controls="filterOptions">
                         Filter Options
+                        <i id="filterToggleIcon" class="bi bi-chevron-down"></i>
                     </button>
-                    <div id="filterOptions" class="collapse show">
+                    <div id="filterOptions" class="collapse">
                         <div class="card card-body mt-3">
                             <!-- Filter Form Fields -->
                             <div class="mb-3">
                                 <label for="ownership" class="form-label">Ownership</label>
                                 <select class="form-select" id="ownership">
-                                    <option selected>Select Ownership</option>
-                                    <option value="1">Freehold</option>
-                                    <option value="2">Condo</option>
+                                    <option value="Freehold" selected>Freehold</option>
+                                    <option value="Condo">Condo</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="property" class="form-label">Property Type</label>
-                                <select class="form-select" id="property">
-                                    <option selected>Select Property Type</option>
-                                    <option value="1">Single-family</option>
-                                    <option value="2">Multi-family</option>
+                                <label for="roll" class="form-label">Roll</label>
+                                <select class="form-select" id="roll">
+                                    <option value="All" selected>All</option>
+                                    <option value="Buyer">Buyer</option>
+                                    <option value="Seller">Seller</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="representative" class="form-label">Representative Type</label>
+                                <label for="representative" class="form-label">Representative</label>
                                 <select class="form-select" id="representative">
-                                    <option selected>Select Representative Type</option>
-                                    <option value="1">Buyer Representative</option>
-                                    <option value="2">Seller Representative</option>
+                                    <option value="All" selected>All</option>
+                                    <option value="Self / Broker Rep">Self / Broker Rep</option>
+                                    <option value="Brokerage Rep">Brokerage Rep</option>
+                                    <option value="Self Rep">Self Rep</option>
                                 </select>
                             </div>
-                            <button type="button" class="btn btn-primary">Apply</button>
+                            <div class="mb-3">
+                                <label for="keywords" class="form-label">Keywords</label>
+                                <input type="text" class="form-control" id="keywords" placeholder="Enter keywords">
+                            </div>
+                            <button type="button" class="btn btn-warning" id="applyFilter">Apply</button>
                         </div>
                     </div>
                 </div>
+                
+                
 
                 <!-- Accordion for Stages -->
                 <div class="accordion" id="formFlowAccordion">
@@ -124,6 +130,9 @@
             $("#sidebar-placeholder").load("sidebar.html", function () {
                 $('[data-bs-toggle="collapse"]').collapse();
             });
+
+            // Fetch and display the data when the page loads
+            fetchFilteredData();
         });
 
         // Sidebar toggle script
@@ -145,68 +154,102 @@
             return window.innerWidth <= 768;
         }
 
-        // Fetch data from Firebase and build the accordion structure
-        db.collection("formflow")
-            .where("transactiontypename", "==", "Resale")
-            .where("ownershiptypename", "==", "Freehold")
-            .where("propertytypename", "==", "Single-family")
-            .get()
-            .then((querySnapshot) => {
-                var dataByStage = {
-                    "Pre-Offer": [],
-                    "Offer": [],
-                    "Post-Offer": []
-                };
-
-                // Group data by stage names
-                querySnapshot.forEach(doc => {
-                    var data = doc.data();
-                    if (dataByStage[data.stagename]) {
-                        dataByStage[data.stagename].push({
-                            formfullname: data.formfullname,  // Use formfullname for display
-                            formpath: data.formpath
-                        });
-                    }
-                });
-
-                // Build the accordion structure
-                var accordion = document.getElementById("formFlowAccordion");
-                var stageIndex = 0;
-                for (const stage in dataByStage) {
-                    const collapseId = `collapseStage${stageIndex}`;
-                    const itemId = `headingStage${stageIndex}`;
-                    const isFirst = stageIndex === 0;
-                    const collapseClass = isFirst ? 'collapse show' : 'collapse';
-
-                    var newItem = `
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="${itemId}">
-                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
-                                    ${stage}
-                                </button>
-                            </h2>
-                            <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
-                                <div class="accordion-body">
-                                    <ul class="list-unstyled">
-                    `;
-
-                    dataByStage[stage].forEach(file => {
-                        newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></li>`;
+        // Fetch data and refresh the accordion based on filters
+        function fetchFilteredData() {
+            const ownership = document.getElementById('ownership').value;
+            const representative = document.getElementById('representative').value;
+            const roll = document.getElementById('roll').value;
+            const keywords = document.getElementById('keywords').value.trim().toLowerCase();
+        
+            // Initialize the Firestore query
+            let query = db.collection("formflow").where("ownershiptypename", "==", ownership);
+        
+            // Add the representative filter only if it's not "All"
+            if (representative !== "All") {
+                query = query.where("categoryname", "==", representative);
+            }
+        
+            // Add the roll filter only if it's not "All"
+            if (roll !== "All") {
+                query = query.where("categorysubname", "==", roll);
+            }
+        
+            query.get()
+                .then((querySnapshot) => {
+                    var dataByStage = {
+                        "Pre-Offer": [],
+                        "Offer": [],
+                        "Post-Offer": []
+                    };
+        
+                    // Group data by stage names
+                    querySnapshot.forEach(doc => {
+                        var data = doc.data();
+                        
+                        // Perform client-side filtering for the keyword search
+                        if (keywords && !(data.formcode.toLowerCase().includes(keywords) || data.formfullname.toLowerCase().includes(keywords))) {
+                            return; // Skip this document if it doesn't match the keyword search
+                        }
+        
+                        if (dataByStage[data.stagename]) {
+                            dataByStage[data.stagename].push({
+                                formcode: data.formcode,
+                                formfullname: data.formfullname,
+                                formpath: data.formpath
+                            });
+                        }
                     });
-
-                    newItem += `
-                                    </ul>
+        
+                    // Build the accordion structure
+                    var accordion = document.getElementById("formFlowAccordion");
+                    accordion.innerHTML = ''; // Clear existing content
+                    var stageIndex = 0;
+                    for (const stage in dataByStage) {
+                        const collapseId = `collapseStage${stageIndex}`;
+                        const itemId = `headingStage${stageIndex}`;
+                        const isFirst = stageIndex === 0;
+                        const collapseClass = isFirst ? 'collapse show' : 'collapse';
+                        const recordCount = dataByStage[stage].length; // Get the number of records
+        
+                        var newItem = `
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="${itemId}">
+                                    <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
+                                        ${stage} <span class="badge bg-secondary ms-2">${recordCount}</span>
+                                    </button>
+                                </h2>
+                                <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-unstyled">
+                        `;
+        
+                        dataByStage[stage].forEach(file => {
+                            newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}"><strong>${file.formcode}</strong> - ${file.formfullname}</a></li>`;
+                        });
+        
+                        newItem += `
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+        
+                        accordion.innerHTML += newItem;
+                        stageIndex++;
+                    }
+                }).catch((error) => {
+                    console.log("Error getting documents: ", error);
+                });
+        }
+        
+        
 
-                    accordion.innerHTML += newItem;
-                    stageIndex++;
-                }
-            }).catch((error) => {
-                console.log("Error getting documents: ", error);
-            });
+        // Handle filter application
+        document.getElementById('applyFilter').addEventListener('click', function () {
+            fetchFilteredData();
+            $('#filterOptions').collapse('hide');
+        });
+
 
         // Script to Handle File Link Click
         document.addEventListener("click", function (e) {
@@ -241,6 +284,30 @@
             }
         });
 
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterOptions = document.getElementById("filterOptions");
+            const filterToggleIcon = document.getElementById("filterToggleIcon");
+        
+            // Ensure the icon is correct on page load
+            if (filterOptions.classList.contains('show')) {
+                filterToggleIcon.classList.remove("bi-chevron-down");
+                filterToggleIcon.classList.add("bi-chevron-up");
+            } else {
+                filterToggleIcon.classList.remove("bi-chevron-up");
+                filterToggleIcon.classList.add("bi-chevron-down");
+            }
+        
+            filterOptions.addEventListener('shown.bs.collapse', function () {
+                filterToggleIcon.classList.remove("bi-chevron-down");
+                filterToggleIcon.classList.add("bi-chevron-up");
+            });
+        
+            filterOptions.addEventListener('hidden.bs.collapse', function () {
+                filterToggleIcon.classList.remove("bi-chevron-up");
+                filterToggleIcon.classList.add("bi-chevron-down");
+            });
+        });
+        
         // JavaScript to handle resizable panels in desktop view
         const separator = document.getElementById('separator');
         const leftPanel = document.querySelector('.left-panel');

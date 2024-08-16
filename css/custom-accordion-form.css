@@ -21,6 +21,10 @@
     filter: invert(100%); 
 }
 
+.accordion-button .badge {
+    margin-left: 10px; /* Adjust this value for desired spacing */
+}
+
 /* Reduce the font size in the extended area (accordion body) */
 .accordion-body {
     font-size: 13px; /* Adjust the font size as needed */
