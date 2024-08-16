@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Retrieval - Resale</title>
+    <title>Form Retrieval - Resale Freehold</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons CSS -->
@@ -24,12 +24,56 @@
             <i class="bi bi-list"></i>
         </button>
 
-
-
         <div class="resizable-container">
             <!-- Left Section: Accordion for Stages -->
             <div class="left-panel">
                 <h2 class="mb-4">Form Retrieval - Resale</h2>
+
+                <!-- Filter Options Button and Section -->
+                <div class="filter-section mb-4">
+                    <button class="btn btn-light w-40 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#filterOptions" aria-expanded="false" aria-controls="filterOptions">
+                        Filter Options
+                        <i id="filterToggleIcon" class="bi bi-chevron-down"></i>
+                    </button>
+                    <div id="filterOptions" class="collapse">
+                        <div class="card card-body mt-3">
+                            <!-- Filter Form Fields -->
+                            <div class="mb-3">
+                                <label for="ownership" class="form-label">Ownership</label>
+                                <select class="form-select" id="ownership">
+                                    <option value="Freehold" selected>Freehold</option>
+                                    <option value="Condo">Condo</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="roll" class="form-label">Roll</label>
+                                <select class="form-select" id="roll">
+                                    <option value="All" selected>All</option>
+                                    <option value="Buyer">Buyer</option>
+                                    <option value="Seller">Seller</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="representative" class="form-label">Representative</label>
+                                <select class="form-select" id="representative">
+                                    <option value="All" selected>All</option>
+                                    <option value="Self / Broker Rep">Self / Broker Rep</option>
+                                    <option value="Brokerage Rep">Brokerage Rep</option>
+                                    <option value="Self Rep">Self Rep</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="keywords" class="form-label">Keywords</label>
+                                <input type="text" class="form-control" id="keywords" placeholder="Enter keywords">
+                            </div>
+                            <button type="button" class="btn btn-warning" id="applyFilter">Apply</button>
+                        </div>
+                    </div>
+                </div>
+                
+                
+
+                <!-- Accordion for Stages -->
                 <div class="accordion" id="formFlowAccordion">
                     <!-- Dynamic content will be inserted here -->
                 </div>
@@ -44,13 +88,27 @@
                     <p></p>
                 </div>
             </div>
-
         </div>
     </div>
 
     <!-- Chatbot Icon -->
     <div class="chatbot-icon">
         <i class="bi bi-chat-dots-fill"></i>
+    </div>
+
+    <!-- Mobile Preview Modal -->
+    <div class="modal fade" id="mobilePreviewModal" tabindex="-1" aria-labelledby="mobilePreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mobilePreviewModalLabel">Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="mobileModalBodyContent">
+                    <!-- Content will be injected here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
@@ -72,6 +130,9 @@
             $("#sidebar-placeholder").load("sidebar.html", function () {
                 $('[data-bs-toggle="collapse"]').collapse();
             });
+
+            // Fetch and display the data when the page loads
+            fetchFilteredData();
         });
 
         // Sidebar toggle script
@@ -88,68 +149,107 @@
             }
         });
 
-        // Fetch data from Firebase and build the accordion structure
-        db.collection("formflow")
-            .where("transactiontypename", "==", "Resale")
-            .where("ownershiptypename", "==", "Freehold")
-            .where("propertytypename", "==", "Single-family")
-            .get()
-            .then((querySnapshot) => {
-                var dataByStage = {
-                    "Pre-Offer": [],
-                    "Offer": [],
-                    "Post-Offer": []
-                };
+        // Detect screen width and switch between desktop and mobile modes
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
 
-                // Group data by stage names
-                querySnapshot.forEach(doc => {
-                    var data = doc.data();
-                    if (dataByStage[data.stagename]) {
-                        dataByStage[data.stagename].push({
-                            formfullname: data.formfullname,  // Use formfullname for display
-                            formpath: data.formpath
-                        });
-                    }
-                });
-
-                // Build the accordion structure
-                var accordion = document.getElementById("formFlowAccordion");
-                var stageIndex = 0;
-                for (const stage in dataByStage) {
-                    const collapseId = `collapseStage${stageIndex}`;
-                    const itemId = `headingStage${stageIndex}`;
-                    const isFirst = stageIndex === 0;
-                    const collapseClass = isFirst ? 'collapse show' : 'collapse';
-
-                    var newItem = `
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="${itemId}">
-                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
-                                    ${stage}
-                                </button>
-                            </h2>
-                            <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
-                                <div class="accordion-body">
-                                    <ul class="list-unstyled">
-                    `;
-
-                    dataByStage[stage].forEach(file => {
-                        newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></li>`;
+        // Fetch data and refresh the accordion based on filters
+        function fetchFilteredData() {
+            const ownership = document.getElementById('ownership').value;
+            const representative = document.getElementById('representative').value;
+            const roll = document.getElementById('roll').value;
+            const keywords = document.getElementById('keywords').value.trim().toLowerCase();
+        
+            // Initialize the Firestore query
+            let query = db.collection("formflow").where("ownershiptypename", "==", ownership);
+        
+            // Add the representative filter only if it's not "All"
+            if (representative !== "All") {
+                query = query.where("categoryname", "==", representative);
+            }
+        
+            // Add the roll filter only if it's not "All"
+            if (roll !== "All") {
+                query = query.where("categorysubname", "==", roll);
+            }
+        
+            query.get()
+                .then((querySnapshot) => {
+                    var dataByStage = {
+                        "Pre-Offer": [],
+                        "Offer": [],
+                        "Post-Offer": []
+                    };
+        
+                    // Group data by stage names
+                    querySnapshot.forEach(doc => {
+                        var data = doc.data();
+                        
+                        // Perform client-side filtering for the keyword search
+                        if (keywords && !(data.formcode.toLowerCase().includes(keywords) || data.formfullname.toLowerCase().includes(keywords))) {
+                            return; // Skip this document if it doesn't match the keyword search
+                        }
+        
+                        if (dataByStage[data.stagename]) {
+                            dataByStage[data.stagename].push({
+                                formcode: data.formcode,
+                                formfullname: data.formfullname,
+                                formpath: data.formpath
+                            });
+                        }
                     });
-
-                    newItem += `
-                                    </ul>
+        
+                    // Build the accordion structure
+                    var accordion = document.getElementById("formFlowAccordion");
+                    accordion.innerHTML = ''; // Clear existing content
+                    var stageIndex = 0;
+                    for (const stage in dataByStage) {
+                        const collapseId = `collapseStage${stageIndex}`;
+                        const itemId = `headingStage${stageIndex}`;
+                        const isFirst = stageIndex === 0;
+                        const collapseClass = isFirst ? 'collapse show' : 'collapse';
+                        const recordCount = dataByStage[stage].length; // Get the number of records
+        
+                        var newItem = `
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="${itemId}">
+                                    <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
+                                        ${stage} <span class="badge bg-secondary ms-2">${recordCount}</span>
+                                    </button>
+                                </h2>
+                                <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-unstyled">
+                        `;
+        
+                        dataByStage[stage].forEach(file => {
+                            newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}"><strong>${file.formcode}</strong> - ${file.formfullname}</a></li>`;
+                        });
+        
+                        newItem += `
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
+        
+                        accordion.innerHTML += newItem;
+                        stageIndex++;
+                    }
+                }).catch((error) => {
+                    console.log("Error getting documents: ", error);
+                });
+        }
+        
+        
 
-                    accordion.innerHTML += newItem;
-                    stageIndex++;
-                }
-            }).catch((error) => {
-                console.log("Error getting documents: ", error);
-            });
+        // Handle filter application
+        document.getElementById('applyFilter').addEventListener('click', function () {
+            fetchFilteredData();
+            $('#filterOptions').collapse('hide');
+        });
+
 
         // Script to Handle File Link Click
         document.addEventListener("click", function (e) {
@@ -167,47 +267,93 @@
                 var fileRef = storage.ref(formpath);
 
                 fileRef.getDownloadURL().then(function (url) {
-                    var pdfPreview = document.getElementById("pdfPreview");
-                    pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="100%"></iframe>`;
+                    if (isMobile()) {
+                        // Mobile view: Display preview in a modal
+                        var modalBodyContent = document.getElementById("mobileModalBodyContent");
+                        modalBodyContent.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border: none;"></iframe>`;
+                        var mobileModal = new bootstrap.Modal(document.getElementById('mobilePreviewModal'));
+                        mobileModal.show();
+                    } else {
+                        // Desktop view: Display preview on the right panel
+                        var pdfPreview = document.getElementById("pdfPreview");
+                        pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border: none;"></iframe>`;
+                    }
                 }).catch(function (error) {
                     console.error("Error getting file URL: ", error);
                 });
             }
         });
 
-        // JavaScript to handle resizable panels
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterOptions = document.getElementById("filterOptions");
+            const filterToggleIcon = document.getElementById("filterToggleIcon");
+        
+            // Ensure the icon is correct on page load
+            if (filterOptions.classList.contains('show')) {
+                filterToggleIcon.classList.remove("bi-chevron-down");
+                filterToggleIcon.classList.add("bi-chevron-up");
+            } else {
+                filterToggleIcon.classList.remove("bi-chevron-up");
+                filterToggleIcon.classList.add("bi-chevron-down");
+            }
+        
+            filterOptions.addEventListener('shown.bs.collapse', function () {
+                filterToggleIcon.classList.remove("bi-chevron-down");
+                filterToggleIcon.classList.add("bi-chevron-up");
+            });
+        
+            filterOptions.addEventListener('hidden.bs.collapse', function () {
+                filterToggleIcon.classList.remove("bi-chevron-up");
+                filterToggleIcon.classList.add("bi-chevron-down");
+            });
+        });
+        
+        // JavaScript to handle resizable panels in desktop view
         const separator = document.getElementById('separator');
         const leftPanel = document.querySelector('.left-panel');
         const rightPanel = document.querySelector('.right-panel');
-
         let isDragging = false;
         let startX, startLeftWidth;
 
-        separator.addEventListener('mousedown', function (e) {
-            isDragging = true;
-            startX = e.clientX;
-            startLeftWidth = leftPanel.getBoundingClientRect().width;
-            document.body.style.cursor = 'ew-resize';
-            e.preventDefault();
-        });
+        if (!isMobile()) {
+            separator.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                startX = e.clientX;
+                startLeftWidth = leftPanel.getBoundingClientRect().width;
+                document.body.style.cursor = 'ew-resize';
 
-        document.addEventListener('mousemove', function (e) {
-            if (!isDragging) return;
-            const deltaX = e.clientX - startX;
-            const containerWidth = document.querySelector('.resizable-container').clientWidth;
-            const newLeftWidth = ((startLeftWidth + deltaX) / containerWidth) * 100;
+                // Temporarily disable pointer events for the iframe during resizing
+                const iframeElement = rightPanel.querySelector('iframe');
+                if (iframeElement) {
+                    iframeElement.style.pointerEvents = 'none';
+                }
 
-            if (newLeftWidth > 10 && newLeftWidth < 90) { // Prevent panels from being too small or too large
-                leftPanel.style.width = `${newLeftWidth}%`;
-                rightPanel.style.width = `${100 - newLeftWidth}%`;
-            }
-        });
+                e.preventDefault();
+            });
 
-        document.addEventListener('mouseup', function () {
-            isDragging = false;
-            document.body.style.cursor = 'default';
-        });
+            document.addEventListener('mousemove', function (e) {
+                if (!isDragging) return;
+                const deltaX = e.clientX - startX;
+                const containerWidth = document.querySelector('.resizable-container').clientWidth;
+                const newLeftWidth = ((startLeftWidth + deltaX) / containerWidth) * 100;
+
+                if (newLeftWidth > 10 && newLeftWidth < 90) { // Prevent panels from being too small or too large
+                    leftPanel.style.width = `${newLeftWidth}%`;
+                    rightPanel.style.width = `${100 - newLeftWidth}%`;
+                }
+            });
+
+            document.addEventListener('mouseup', function () {
+                isDragging = false;
+                document.body.style.cursor = 'default';
+
+                // Re-enable pointer events for the iframe after resizing
+                const iframeElement = rightPanel.querySelector('iframe');
+                if (iframeElement) {
+                    iframeElement.style.pointerEvents = 'auto';
+                }
+            });
+        }
     </script>
 </body>
-
 </html>
