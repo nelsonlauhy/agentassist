@@ -9,6 +9,86 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom Chatbot CSS -->
     <link href="css/chatbot.css" rel="stylesheet">
+    <style>
+        /* Chatbot icon and container styles */
+        #chatIcon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 60px;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        #chatContainer {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 500px; /* Increased default width */
+            height: 600px; /* Increased default height */
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            display: none; /* Initially hidden */
+            z-index: 1000;
+            overflow: auto;
+            max-height: calc(100vh - 150px); /* Allow the container to resize across more of the viewport */
+        }
+
+        /* Custom top-left resize handle */
+        #resizeHandle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            cursor: nwse-resize;
+            z-index: 1001;
+            background-image: url('images/resize-left.svg'); /* Using the custom image */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.7; /* Optional: Control the opacity of the icon */
+            transform: rotate(180deg); /* Rotates the image 180 degrees */
+        }
+
+        #chatHistory {
+            height: calc(100% - 160px); /* Adjust based on the container's height */
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        #chatHistory p {
+            margin-bottom: 10px;
+        }
+
+        #userInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #sendBtn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+    </style>
 </head>
 
 <body>
