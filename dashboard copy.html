@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Sidebar Placeholder -->
+<div id="sidebar-placeholder"></div>
+
+<!-- Main Content -->
+<div class="content" id="mainContent">
+    <!-- Toggle Button for Sidebar -->
+    <button class="toggle-btn" id="toggleButton">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="container-fluid">
+        <div class="container-fluid">
+            <div class="dashboard-header d-flex align-items-end flex-wrap"> <!-- Flexbox container with flex-wrap -->
+                <h2 class="my-4 mb-0">Dashboard</h2>
+                <h6 class="text-muted ms-3 mb-1">Welcome back, Nelson Lau</h6> <!-- Adjusted margin for spacing -->
+            </div><br>
+            
+            <!-- Block Container -->
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="content-block">
+                        <h6>Message List (FILO) with links</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="content-block">
+                        <h6>Training Material Update List with links</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="content-block">
+                        <h6>Common Form List with links</h6>
+                        <!-- Content will be inserted here -->
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="content-block content-block-large">
+                        <h6>Portal update</h6>
+                        <table class="table borderless">
+                            <tbody>
+                                <tr>
+                                    <td>Aug 13, 2024</td>
+                                    <td>Start Portal migration to the CLOUD including Firebase, GitHub, Netlify.</td>
+                                </tr>
+                                <tr>
+                                    <td>Aug 01, 2024</td>
+                                    <td>Design system architecture.</td>
+                                </tr>
+                                <tr>
+                                    <td>Jul 15, 2024</td>
+                                    <td>Design Portal functions and features, Application layout and basic operation flows.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- Chatbot Icon -->
+        <div class="chatbot-icon">
+            <i class="bi bi-chat-dots-fill"></i>
+        </div>
+
+    </div>
+</div>
+
+<!-- Bootstrap JS and Popper.js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Load the sidebar content
+    $(function(){
+        $("#sidebar-placeholder").load("sidebar.html", function() {
+            // Initialize any Bootstrap components if needed after loading sidebar
+            $('[data-bs-toggle="collapse"]').collapse();
+        });
+    });
+
+    // Sidebar toggle script
+    document.getElementById('toggleButton').addEventListener('click', function () {
+        var sidebar = document.getElementById('sidebarMenu');
+        var content = document.getElementById('mainContent');
+        
+        if (sidebar.classList.contains('sidebar-hidden')) {
+            sidebar.classList.remove('sidebar-hidden');
+            content.classList.remove('collapsed-sidebar');
+        } else {
+            sidebar.classList.add('sidebar-hidden');
+            content.classList.add('collapsed-sidebar');
+        }
+    });
+</script>
+</body>
+</html>
