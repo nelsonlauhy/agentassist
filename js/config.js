@@ -1,5 +1,4 @@
 // config.js
-const OPENAI_API_KEY = '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'; 
 
 const firebaseConfig = {
     apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
