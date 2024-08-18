@@ -71,8 +71,6 @@
                     </div>
                 </div>
                 
-                
-
                 <!-- Accordion for Stages -->
                 <div class="accordion" id="formFlowAccordion">
                     <!-- Dynamic content will be inserted here -->
@@ -117,22 +115,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-storage-compat.js"></script>
+    <script type="module" src="js/firebase-config2.js"></script>
 
-    <!-- Firebase Config -->
-    <script src="js/firebase-config.js"></script> <!-- Load the external Firebase config -->
+    <script type="module">
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-    <!-- Load Sidebar -->
-    <script>
+        const auth = getAuth();
+        const db = getFirestore();
+        const storage = getStorage();
+
+        // Define the isMobile function to avoid the ReferenceError
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // Check if the user is logged in and get their UID
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.emailVerified) {
+                // User is authenticated, continue loading the page data
+                fetchFilteredData();
+            } else {
+                // Redirect to login if not authenticated
+                window.location.href = "login.html";
+            }
+        });
+
         $(function () {
             $("#sidebar-placeholder").load("sidebar.html", function () {
                 $('[data-bs-toggle="collapse"]').collapse();
             });
-
-            // Fetch and display the data when the page loads
-            fetchFilteredData();
         });
 
         // Sidebar toggle script
@@ -149,100 +162,95 @@
             }
         });
 
-        // Detect screen width and switch between desktop and mobile modes
-        function isMobile() {
-            return window.innerWidth <= 768;
-        }
-
         // Fetch data and refresh the accordion based on filters
-        function fetchFilteredData() {
+        async function fetchFilteredData() {
             const ownership = document.getElementById('ownership').value;
             const representative = document.getElementById('representative').value;
             const roll = document.getElementById('roll').value;
             const keywords = document.getElementById('keywords').value.trim().toLowerCase();
-        
-            // Initialize the Firestore query
-            let query = db.collection("formflow").where("ownershiptypename", "==", ownership);
-        
+
+            let q = query(
+                collection(db, "formflow"),
+                where("ownershiptypename", "==", ownership)
+            );
+
             // Add the representative filter only if it's not "All"
             if (representative !== "All") {
-                query = query.where("categoryname", "==", representative);
+                q = query(q, where("categoryname", "==", representative));
             }
-        
+
             // Add the roll filter only if it's not "All"
             if (roll !== "All") {
-                query = query.where("categorysubname", "==", roll);
+                q = query(q, where("categorysubname", "==", roll));
             }
-        
-            query.get()
-                .then((querySnapshot) => {
-                    var dataByStage = {
-                        "Pre-Offer": [],
-                        "Offer": [],
-                        "Post-Offer": []
-                    };
-        
-                    // Group data by stage names
-                    querySnapshot.forEach(doc => {
-                        var data = doc.data();
-                        
-                        // Perform client-side filtering for the keyword search
-                        if (keywords && !(data.formcode.toLowerCase().includes(keywords) || data.formfullname.toLowerCase().includes(keywords))) {
-                            return; // Skip this document if it doesn't match the keyword search
-                        }
-        
-                        if (dataByStage[data.stagename]) {
-                            dataByStage[data.stagename].push({
-                                formcode: data.formcode,
-                                formfullname: data.formfullname,
-                                formpath: data.formpath
-                            });
-                        }
-                    });
-        
-                    // Build the accordion structure
-                    var accordion = document.getElementById("formFlowAccordion");
-                    accordion.innerHTML = ''; // Clear existing content
-                    var stageIndex = 0;
-                    for (const stage in dataByStage) {
-                        const collapseId = `collapseStage${stageIndex}`;
-                        const itemId = `headingStage${stageIndex}`;
-                        const isFirst = stageIndex === 0;
-                        const collapseClass = isFirst ? 'collapse show' : 'collapse';
-                        const recordCount = dataByStage[stage].length; // Get the number of records
-        
-                        var newItem = `
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="${itemId}">
-                                    <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
-                                        ${stage} <span class="badge bg-secondary ms-2">${recordCount}</span>
-                                    </button>
-                                </h2>
-                                <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
-                                    <div class="accordion-body">
-                                        <ul class="list-unstyled">
-                        `;
-        
-                        dataByStage[stage].forEach(file => {
-                            newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}"><strong>${file.formcode}</strong> - ${file.formfullname}</a></li>`;
+
+            try {
+                const querySnapshot = await getDocs(q);
+                const dataByStage = {
+                    "Pre-Offer": [],
+                    "Offer": [],
+                    "Post-Offer": []
+                };
+
+                // Group data by stage names
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+
+                    // Perform client-side filtering for the keyword search
+                    if (keywords && !(data.formcode.toLowerCase().includes(keywords) || data.formfullname.toLowerCase().includes(keywords))) {
+                        return; // Skip this document if it doesn't match the keyword search
+                    }
+
+                    if (dataByStage[data.stagename]) {
+                        dataByStage[data.stagename].push({
+                            formcode: data.formcode,
+                            formfullname: data.formfullname,
+                            formpath: data.formpath
                         });
-        
-                        newItem += `
-                                        </ul>
-                                    </div>
+                    }
+                });
+
+                // Build the accordion structure
+                const accordion = document.getElementById("formFlowAccordion");
+                accordion.innerHTML = ''; // Clear existing content
+                let stageIndex = 0;
+                for (const stage in dataByStage) {
+                    const collapseId = `collapseStage${stageIndex}`;
+                    const itemId = `headingStage${stageIndex}`;
+                    const isFirst = stageIndex === 0;
+                    const collapseClass = isFirst ? 'collapse show' : 'collapse';
+                    const recordCount = dataByStage[stage].length; // Get the number of records
+
+                    let newItem = `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="${itemId}">
+                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
+                                    ${stage} <span class="badge bg-secondary ms-2">${recordCount}</span>
+                                </button>
+                            </h2>
+                            <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-unstyled">
+                    `;
+
+                    dataByStage[stage].forEach(file => {
+                        newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}"><strong>${file.formcode}</strong> - ${file.formfullname}</a></li>`;
+                    });
+
+                    newItem += `
+                                    </ul>
                                 </div>
                             </div>
-                        `;
-        
-                        accordion.innerHTML += newItem;
-                        stageIndex++;
-                    }
-                }).catch((error) => {
-                    console.log("Error getting documents: ", error);
-                });
+                        </div>
+                    `;
+
+                    accordion.innerHTML += newItem;
+                    stageIndex++;
+                }
+            } catch (error) {
+                console.error("Error getting documents: ", error);
+            }
         }
-        
-        
 
         // Handle filter application
         document.getElementById('applyFilter').addEventListener('click', function () {
@@ -250,36 +258,34 @@
             $('#filterOptions').collapse('hide');
         });
 
-
         // Script to Handle File Link Click
         document.addEventListener("click", function (e) {
             if (e.target && e.target.classList.contains("file-link")) {
                 e.preventDefault();
-                var formpath = e.target.getAttribute("data-formpath");
+                const formpath = e.target.getAttribute("data-formpath");
 
                 if (!formpath) {
                     console.error("Form path is missing.");
                     return;
                 }
 
-                // Firebase Storage reference
-                var storage = firebase.storage();
-                var fileRef = storage.ref(formpath);
+                const fileRef = ref(storage, formpath);
 
-                fileRef.getDownloadURL().then(function (url) {
+                getDownloadURL(fileRef).then(function (url) {
                     if (isMobile()) {
                         // Mobile view: Display preview in a modal
-                        var modalBodyContent = document.getElementById("mobileModalBodyContent");
+                        const modalBodyContent = document.getElementById("mobileModalBodyContent");
                         modalBodyContent.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border: none;"></iframe>`;
-                        var mobileModal = new bootstrap.Modal(document.getElementById('mobilePreviewModal'));
+                        const mobileModal = new bootstrap.Modal(document.getElementById('mobilePreviewModal'));
                         mobileModal.show();
                     } else {
                         // Desktop view: Display preview on the right panel
-                        var pdfPreview = document.getElementById("pdfPreview");
+                        const pdfPreview = document.getElementById("pdfPreview");
                         pdfPreview.innerHTML = `<iframe src="${url}" width="100%" height="100%" style="border: none;"></iframe>`;
                     }
                 }).catch(function (error) {
                     console.error("Error getting file URL: ", error);
+                    document.getElementById("pdfPreview").innerHTML = `<p>Error loading PDF preview. Please try again later.</p>`;
                 });
             }
         });
@@ -287,7 +293,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             const filterOptions = document.getElementById("filterOptions");
             const filterToggleIcon = document.getElementById("filterToggleIcon");
-        
+
             // Ensure the icon is correct on page load
             if (filterOptions.classList.contains('show')) {
                 filterToggleIcon.classList.remove("bi-chevron-down");
@@ -296,18 +302,18 @@
                 filterToggleIcon.classList.remove("bi-chevron-up");
                 filterToggleIcon.classList.add("bi-chevron-down");
             }
-        
+
             filterOptions.addEventListener('shown.bs.collapse', function () {
                 filterToggleIcon.classList.remove("bi-chevron-down");
                 filterToggleIcon.classList.add("bi-chevron-up");
             });
-        
+
             filterOptions.addEventListener('hidden.bs.collapse', function () {
                 filterToggleIcon.classList.remove("bi-chevron-up");
                 filterToggleIcon.classList.add("bi-chevron-down");
             });
         });
-        
+
         // JavaScript to handle resizable panels in desktop view
         const separator = document.getElementById('separator');
         const leftPanel = document.querySelector('.left-panel');
