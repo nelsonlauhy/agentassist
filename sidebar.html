@@ -3,9 +3,16 @@
     <div class="center">
         <img src="images/LivingRealty40.png" alt="Company Logo" class="logo mb-3">
     </div>
-    <div class="profile">
-        <i class="bi bi-person-circle"></i>
-        <h5>Nelson Lau</h5>
+    <div class="profile text-center">
+        <!-- User's Profile Photo or Default Icon -->
+        <div id="profileIconContainer" class="d-flex justify-content-center mb-3">
+            <i id="sidebarDefaultIcon" class="bi bi-person-circle" style="font-size: 50px; display: block;"></i>
+            <img id="sidebarProfilePhoto" src="" alt="Profile Photo" class="img-thumbnail" style="width: 50px; height: 50px; display: none;">
+        </div>
+        <!-- User's Name -->
+        <h5 id="userName">Loading...</h5>
+        <!-- User's Branch -->
+        <p id="userBranch" style="font-size: smaller; margin: 0;">Loading branch...</p>
     </div>
     <hr>
     <ul class="nav nav-pills flex-column mb-auto"><br>
@@ -44,10 +51,54 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-            <a href="#" class="nav-link"><i class="bi bi-person"></i> Profile</a>
+            <a href="profile.html" class="nav-link"><i class="bi bi-person"></i> Profile</a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
+            <a href="#" id="signOutButton" class="nav-link"><i class="bi bi-box-arrow-right"></i> Sign Out</a>
         </li>
     </ul>
 </div>
+
+<script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const auth = getAuth();
+    const db = getFirestore();
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Fetch the user's data from Firestore
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const fullName = `${userData.firstName} ${userData.lastName}`;
+                const branch = userData.branch;
+
+                // Update the sidebar with the user's name and branch
+                document.getElementById('userName').textContent = fullName;
+                document.getElementById('userBranch').textContent = branch;
+
+                // Display the profile photo or show the default icon if no photo exists
+                if (userData.photoURL) {
+                    document.getElementById('sidebarProfilePhoto').src = userData.photoURL;
+                    document.getElementById('sidebarProfilePhoto').style.display = 'block';
+                    document.getElementById('sidebarDefaultIcon').style.display = 'none';
+                } else {
+                    document.getElementById('sidebarProfilePhoto').style.display = 'none';
+                    document.getElementById('sidebarDefaultIcon').style.display = 'block';
+                }
+            }
+        }
+    });
+
+    document.getElementById('signOutButton').addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            // Redirect to login page
+            window.location.href = "login.html";
+        } catch (error) {
+            alert('Error signing out: ' + error.message);
+        }
+    });
+</script>

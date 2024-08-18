@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mt-5">Login</h2>
+                <form id="loginForm" class="mt-4">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Enter email" required autocomplete="username">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Login</button>
+                </form>
+                <!-- Forgot Password Link -->
+                <p class="text-center mt-3"><a href="reset-password.html">Forgot Password?</a></p>
+                <p class="text-center mt-3">Don't have an account? <a href="register.html">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs for Modular Version -->
+    <script type="module" src="js/firebase-config2.js"></script>
+    <!-- CryptoJS for AES Encryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <script type="module">
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const auth = getAuth();
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                if (!user.emailVerified) {
+                    alert('Please verify your email before logging in.');
+                    return;
+                }
+
+                // Encryption key (must be securely stored)
+                const encryptionKey = "aH56jK0lpS8aVJkP92QmXnZ5cLvO6G8f"; // Your encryption key
+
+                // Encrypt the password
+                const encryptedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
+
+                // Update the encrypted password in Firestore
+                const db = getFirestore();
+                await updateDoc(doc(db, "users", user.uid), {
+                    encryptedPassword: encryptedPassword
+                });
+
+                // Redirect to dashboard.html if login is successful
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

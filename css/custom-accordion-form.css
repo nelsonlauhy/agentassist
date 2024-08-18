@@ -54,7 +54,7 @@
 /* Resizable container structure for left and right panels */
 .resizable-container {
     display: flex;
-    height: 100vh;
+    height: 94vh;
     overflow: hidden;
 }
 
@@ -74,7 +74,7 @@
 
 .right-panel {
     width: 65%;
-    height: 95%; /* Ensure the right panel takes full height */
+    height: 100%; /* Ensure the right panel takes full height */
     min-width: 300px;
     background-color: #ffffff;
     padding: 0; /* Remove extra padding */
@@ -88,7 +88,7 @@
     width: 5px;
     cursor: ew-resize;
     background-color: #cccccc;
-    height: 95%; /* Ensure the separator takes full height */
+    height: 100%; /* Ensure the separator takes full height */
     position: relative;
 }
 

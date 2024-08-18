@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mt-5">Register</h2>
+                <form id="registerForm" class="mt-4">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" class="form-control" id="firstName" placeholder="Enter first name" required autocomplete="given-name">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" placeholder="Enter last name" required autocomplete="family-name">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="branch">Branch</label>
+                        <select class="form-control" id="branch" required>
+                            <option value="" disabled selected>Select your branch</option>
+                            <option value="Mississauga">Mississauga</option>
+                            <option value="North Markham">North Markham</option>
+                            <option value="Woodbine">Woodbine</option>
+                            <option value="Yonge & Bloor">Yonge & Bloor</option>
+                            <option value="Yonge & Eglinton">Yonge & Eglinton</option>
+                        </select>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="Enter email" required autocomplete="username">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Enter password" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Register</button>
+                </form>
+                <p class="text-center mt-3">Already have an account? <a href="login.html">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs for Modular Version -->
+    <script type="module" src="js/firebase-config2.js"></script>
+    <!-- CryptoJS for AES Encryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <script type="module">
+        // Handle user registration
+        import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const branch = document.getElementById('branch').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Encryption key (must be securely stored)
+            const encryptionKey = "aH56jK0lpS8aVJkP92QmXnZ5cLvO6G8f";
+
+            // Encrypt the password
+            const encryptedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
+
+            try {
+                const auth = getAuth();
+                const db = getFirestore();
+
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Save user information in Firestore, including the encrypted password
+                await setDoc(doc(db, "users", user.uid), {
+                    firstName,
+                    lastName,
+                    branch,
+                    email,
+                    encryptedPassword, // Store the encrypted password
+                    createdAt: serverTimestamp(),
+                    emailVerified: user.emailVerified,
+                    uid: user.uid
+                });
+
+                // Send email verification
+                await sendEmailVerification(user);
+                alert('Registration successful! Please check your email for verification.');
+
+                // Redirect to login page
+                window.location.href = "login.html";
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

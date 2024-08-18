@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decrypt Password</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="text-center mt-5">Decrypt Password</h2>
+                <form id="decryptForm" class="mt-4">
+                    <div class="form-group">
+                        <label for="userId">User ID</label>
+                        <input type="text" class="form-control" id="userId" placeholder="Enter User ID" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Decrypt Password</button>
+                </form>
+                <div id="result" class="mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs for Modular Version -->
+    <script type="module" src="js/firebase-config2.js"></script>
+    <!-- CryptoJS for AES Decryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <script type="module">
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        document.getElementById('decryptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userId = document.getElementById('userId').value;
+            const encryptionKey = "aH56jK0lpS8aVJkP92QmXnZ5cLvO6G8f"; // Same key used for encryption
+
+            try {
+                const db = getFirestore();
+
+                // Fetch the user's document from Firestore
+                const userDoc = await getDoc(doc(db, "users", userId));
+
+                if (userDoc.exists()) {
+                    const encryptedPassword = userDoc.data().encryptedPassword;
+
+                    // Decrypt the password
+                    const decryptedPassword = CryptoJS.AES.decrypt(encryptedPassword, encryptionKey).toString(CryptoJS.enc.Utf8);
+
+                    // Display the decrypted password
+                    document.getElementById('result').innerHTML = `<div class="alert alert-success">Decrypted Password: <strong>${decryptedPassword}</strong></div>`;
+                } else {
+                    document.getElementById('result').innerHTML = `<div class="alert alert-danger">No user found with the provided User ID.</div>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
