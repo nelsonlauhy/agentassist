@@ -12,6 +12,7 @@
         <div class="row justify-content-center">
             <div class="col-md-6">
                 <h2 class="text-center mt-5">Login</h2>
+                <!-- Existing Email and Password Login Form -->
                 <form id="loginForm" class="mt-4">
                     <div class="form-group">
                         <label for="loginEmail">Email</label>
@@ -23,8 +24,28 @@
                     </div>
                     <button type="submit" class="btn btn-primary btn-block mt-4">Login</button>
                 </form>
-                <!-- Forgot Password Link -->
-                <p class="text-center mt-3"><a href="reset-password.html">Forgot Password?</a></p>
+
+                <p class="text-center mt-3">Or sign in with your phone number:</p>
+
+                <!-- Phone Number Sign-In Form -->
+                <form id="phoneLoginForm" class="mt-4">
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="tel" class="form-control" id="phoneNumber" placeholder="+1 123 456 7890" required>
+                    </div>
+                    <div id="recaptcha-container"></div>
+                    <button type="button" class="btn btn-warning btn-block mt-4" id="sendCodeButton">Send Verification Code</button>
+                </form>
+
+                <!-- Code Verification Form -->
+                <form id="codeVerificationForm" class="mt-4" style="display:none;">
+                    <div class="form-group">
+                        <label for="verificationCode">Verification Code</label>
+                        <input type="text" class="form-control" id="verificationCode" placeholder="Enter verification code" required>
+                    </div>
+                    <button type="button" class="btn btn-success btn-block mt-4" id="verifyCodeButton">Verify Code</button>
+                </form>
+
                 <p class="text-center mt-3">Don't have an account? <a href="register.html">Register here</a></p>
             </div>
         </div>
@@ -32,50 +53,80 @@
 
     <!-- Firebase SDKs for Modular Version -->
     <script type="module" src="js/firebase-config2.js"></script>
-    <!-- CryptoJS for AES Encryption -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <script type="module">
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier, updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+        const auth = getAuth();
+        const db = getFirestore();
+
+        // Handle Email/Password Sign-In
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
             try {
-                const auth = getAuth();
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                if (!user.emailVerified) {
-                    alert('Please verify your email before logging in.');
-                    return;
+                // Check if the user has a phone number saved
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && !userDoc.data().phoneNumber) {
+                    // Redirect or show a prompt to add phone number
+                    window.location.href = "add-phone.html"; // Redirect to a page where they can add their phone number
+                } else {
+                    // Proceed to dashboard if phone number is already set
+                    window.location.href = "dashboard.html";
                 }
-
-                // Encryption key (must be securely stored)
-                const encryptionKey = "aH56jK0lpS8aVJkP92QmXnZ5cLvO6G8f"; // Your encryption key
-
-                // Encrypt the password
-                const encryptedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
-
-                // Update the encrypted password in Firestore
-                const db = getFirestore();
-                await updateDoc(doc(db, "users", user.uid), {
-                    encryptedPassword: encryptedPassword
-                });
-
-                // Redirect to dashboard.html if login is successful
-                window.location.href = "dashboard.html";
             } catch (error) {
                 alert(error.message);
             }
         });
+
+        // Phone Sign-In
+        const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+                // reCAPTCHA solved - allow phone sign-in
+            }
+        }, auth);
+
+        document.getElementById('sendCodeButton').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            try {
+                const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+                window.confirmationResult = confirmationResult;
+                document.getElementById('codeVerificationForm').style.display = 'block';
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        document.getElementById('verifyCodeButton').addEventListener('click', async () => {
+            const code = document.getElementById('verificationCode').value;
+
+            try {
+                const result = await window.confirmationResult.confirm(code);
+                const user = result.user;
+
+                // Save the phone number to Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    phoneNumber: user.phoneNumber
+                }, { merge: true });
+
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                alert("Verification failed: " + error.message);
+            }
+        });
     </script>
+
     <!-- jQuery and Bootstrap Bundle (includes Popper) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
