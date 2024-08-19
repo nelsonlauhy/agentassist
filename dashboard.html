@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,128 +12,325 @@
     <!-- Custom CSS -->
     <link href="css/styles.css" rel="stylesheet">
 </head>
+
 <body>
 
-<!-- Sidebar Placeholder -->
-<div id="sidebar-placeholder"></div>
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
 
-<!-- Main Content -->
-<div class="content" id="mainContent">
-    <!-- Toggle Button for Sidebar -->
-    <button class="toggle-btn" id="toggleButton">
-        <i class="bi bi-list"></i>
-    </button>
-    <div class="container-fluid">
+    <!-- Main Content -->
+    <div class="content" id="mainContent">
+        <!-- Toggle Button for Sidebar -->
+        <button class="toggle-btn" id="toggleButton">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="container-fluid">
-            <div class="dashboard-header d-flex align-items-end flex-wrap"> <!-- Flexbox container with flex-wrap -->
-                <h2 class="my-4 mb-0">Dashboard</h2>
-                <h6 class="text-muted ms-3 mb-1" id="welcomeMessage">Welcome back</h6> <!-- Updated to dynamically insert the user's name -->
-            </div><br>
-            
-            <!-- Block Container -->
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="content-block">
-                        <h6>Message List (FILO) with links</h6>
-                        <!-- Content will be inserted here -->
+            <div class="container-fluid">
+                <div class="dashboard-header d-flex align-items-end flex-wrap">
+                    <!-- Flexbox container with flex-wrap -->
+                    <h2 class="my-4 mb-0">Dashboard</h2>
+                    <h6 class="text-muted ms-3 mb-1" id="welcomeMessage">Welcome back</h6>
+                    <!-- Updated to dynamically insert the user's name -->
+                </div><br>
+
+                <!-- Block Container -->
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="content-block">
+                            <h6 class="d-flex justify-content-between align-items-center">
+                                Latest Message
+                                <a href="messagebox.html"><i class="bi bi-box-arrow-up-right text-danger"></i></a>
+                            </h6>
+                            <table class="table borderless">
+                                <tbody id="messageTableBody">
+                                    <!-- Dynamic content will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="content-block">
+                            <h6 class="d-flex justify-content-between align-items-center">
+                                Training Material
+                                <a href="training.html"><i class="bi bi-box-arrow-up-right text-danger"></i></a>
+                            </h6>
+                            <table class="table borderless">
+                                <tbody id="trainingTableBody">
+                                    <!-- Dynamic content will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="content-block">
+                            <h6>Common Form List with links</h6>
+                            <table class="table borderless">
+                                <tbody id="formTableBody">
+                                    <!-- Dynamic content will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="content-block content-block-large">
+                            <h6>Portal update</h6>
+                            <table class="table borderless">
+                                <tbody>
+                                    <tr>
+                                        <td>2024-08-19</td>
+                                        <td>User Profile, allow login through email or mobile number.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-08-13</td>
+                                        <td>Start Portal migration to the CLOUD including Firebase, GitHub, Netlify.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-08-01</td>
+                                        <td>Design system architecture.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2024-07-15</td>
+                                        <td>Design Portal functions and features, Application layout and basic operation flows.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="content-block">
-                        <h6>Training Material Update List with links</h6>
-                        <!-- Content will be inserted here -->
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="content-block">
-                        <h6>Common Form List with links</h6>
-                        <!-- Content will be inserted here -->
-                    </div>
-                </div>
-                <div class="col-lg-12">
-                    <div class="content-block content-block-large">
-                        <h6>Portal update</h6>
-                        <table class="table borderless">
-                            <tbody>
-                                <tr>
-                                    <td>Aug 13, 2024</td>
-                                    <td>Start Portal migration to the CLOUD including Firebase, GitHub, Netlify.</td>
-                                </tr>
-                                <tr>
-                                    <td>Aug 01, 2024</td>
-                                    <td>Design system architecture.</td>
-                                </tr>
-                                <tr>
-                                    <td>Jul 15, 2024</td>
-                                    <td>Design Portal functions and features, Application layout and basic operation flows.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+
+            </div>
+            <!-- Chatbot Icon -->
+            <div class="chatbot-icon">
+                <i class="bi bi-chat-dots-fill"></i>
             </div>
 
         </div>
-        <!-- Chatbot Icon -->
-        <div class="chatbot-icon">
-            <i class="bi bi-chat-dots-fill"></i>
-        </div>
-
     </div>
-</div>
 
-<!-- Firebase SDKs for Modular Version -->
-<script type="module" src="js/firebase-config2.js"></script>
+    <!-- Modal for PDF Preview -->
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfPreviewModalLabel">PDF Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="pdfIframe" src="" width="100%" height="500px" style="border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script type="module">
-    // Firebase Authentication for Modular Version
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    <!-- Firebase SDKs for Modular Version -->
+    <script type="module" src="js/firebase-config2.js"></script>
 
-    const auth = getAuth();
-    const db = getFirestore();
+    <script type="module">
+        // Firebase Authentication and Firestore imports for Modular Version
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, orderBy, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user && user.emailVerified) {
-            // User is logged in and email is verified, proceed to show dashboard
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists()) {
-                const firstName = userDoc.data().firstName;
-                document.getElementById('welcomeMessage').textContent = `Welcome back, ${firstName}`;
+        const auth = getAuth();
+        const db = getFirestore();
+        const storage = getStorage(); // Initialize Firebase Storage
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.emailVerified) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const firstName = userDoc.data().firstName;
+                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${firstName}`;
+                } else {
+                    document.getElementById('welcomeMessage').textContent = `Welcome back`;
+                }
             } else {
-                document.getElementById('welcomeMessage').textContent = `Welcome back`;
+                window.location.href = "login.html";
             }
-        } else {
-            // User is not logged in, redirect to login.html
-            window.location.href = "login.html";
-        }
-    });
-
-    // Sidebar toggle script
-    document.getElementById('toggleButton').addEventListener('click', function () {
-        var sidebar = document.getElementById('sidebarMenu');
-        var content = document.getElementById('mainContent');
-        
-        if (sidebar.classList.contains('sidebar-hidden')) {
-            sidebar.classList.remove('sidebar-hidden');
-            content.classList.remove('collapsed-sidebar');
-        } else {
-            sidebar.classList.add('sidebar-hidden');
-            content.classList.add('collapsed-sidebar');
-        }
-    });
-
-    // Load the sidebar content
-    $(function(){
-        $("#sidebar-placeholder").load("sidebar.html", function() {
-            // Initialize any Bootstrap components if needed after loading sidebar
-            $('[data-bs-toggle="collapse"]').collapse();
         });
-    });
-</script>
 
-<!-- jQuery and Bootstrap Bundle (includes Popper) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+        document.getElementById('toggleButton').addEventListener('click', function () {
+            var sidebar = document.getElementById('sidebarMenu');
+            var content = document.getElementById('mainContent');
+
+            if (sidebar.classList.contains('sidebar-hidden')) {
+                sidebar.classList.remove('sidebar-hidden');
+                content.classList.remove('collapsed-sidebar');
+            } else {
+                sidebar.classList.add('sidebar-hidden');
+                content.classList.add('collapsed-sidebar');
+            }
+        });
+
+        $(function () {
+            $("#sidebar-placeholder").load("sidebar.html", function () {
+                $('[data-bs-toggle="collapse"]').collapse();
+            });
+        });
+
+        // Fetch and display the latest 5 messages
+        function fetchLatestMessages() {
+            const messageTableBody = document.getElementById('messageTableBody');
+
+            const q = query(
+                collection(db, "messagebox"),
+                orderBy("sentdate", "desc"),
+                orderBy("senttime", "desc"),
+                limit(5)
+            );
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    messageTableBody.innerHTML = ''; // Clear existing content
+
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const messageRow = `
+                            <tr>
+                                <td style="width: 80px; font-weight: bold;">
+                                    <a href="#" class="preview-link" data-campaignid="messagebox/${data.campaignid}.pdf">${data.sentdate}</a>
+                                </td>
+                                <td>
+                                    <a href="#" class="preview-link" data-campaignid="messagebox/${data.campaignid}.pdf">${data.subject}</a>
+                                </td>
+                            </tr>
+                        `;
+                        messageTableBody.innerHTML += messageRow;
+                    });
+
+                    // Add event listeners for preview links
+                    document.querySelectorAll(".preview-link").forEach(link => {
+                        link.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            const campaignid = this.getAttribute("data-campaignid");
+                            showPdfInModal(campaignid);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error getting documents: ", error);
+                });
+        }
+
+        // Fetch and display the latest 5 training documents filtered by folder
+        function fetchLatestTrainingFiles() {
+            const trainingTableBody = document.getElementById('trainingTableBody');
+
+            const q = query(
+                collection(db, "trainingfiles"),
+                where("folder", "in", ["General", "FINTRAC 2024"]),
+                orderBy("filename", "desc"),
+                limit(5)
+            );
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    trainingTableBody.innerHTML = ''; // Clear existing content
+
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const filePath = `Training/${data.folder}/${data.filename}`;
+
+                        const trainingRow = `
+                            <tr>
+                                <td style="width: 250px;">${data.folder}</td>
+                                <td><a href="#" class="preview-training-link" data-filepath="${filePath}">${data.filename}</a></td>
+                            </tr>
+                        `;
+                        trainingTableBody.innerHTML += trainingRow;
+                    });
+
+                    // Add event listeners for the preview links
+                    document.querySelectorAll(".preview-training-link").forEach(link => {
+                        link.addEventListener("click", function (event) {
+                            event.preventDefault();
+                            const filePath = this.getAttribute("data-filepath");
+                            showPdfInModal(filePath);
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error getting documents: ", error);
+                });
+        }
+
+        // Fetch and display the latest 5 form documents
+        function fetchLatestForms() {
+            const formTableBody = document.getElementById('formTableBody');
+
+            const q = query(
+                collection(db, "formlist"),
+                orderBy("formcode", "desc"),
+                limit(5)
+            );
+
+            getDocs(q)
+                .then((querySnapshot) => {
+                    formTableBody.innerHTML = ''; // Clear existing content
+
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const formRow = `
+                            <tr>
+                                <td style="width: 100px; font-weight: bold;"><a href="#" class="preview-link" data-formpath="${data.formpath}">${data.formcode}</a></td>
+                                <td><a href="#" class="preview-link" data-formpath="${data.formpath}">${data.formfullname}</a></td>
+                            </tr>
+                        `;
+                        formTableBody.innerHTML += formRow;
+                    });
+
+                    // Attach click event to preview links
+                    attachPreviewLinkEvents();
+                })
+                .catch((error) => {
+                    console.error("Error getting documents: ", error);
+                });
+        }
+
+        function attachPreviewLinkEvents() {
+            const previewLinks = document.querySelectorAll('.preview-link');
+
+            previewLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const formpath = this.getAttribute('data-formpath');
+                    showPdfInModal(formpath);
+                });
+            });
+        }
+
+        // Function to show the PDF in a modal
+        function showPdfInModal(filePath) {
+            if (!filePath) {
+                console.error("Error: filePath is undefined.");
+                return;
+            }
+
+            const pdfIframe = document.getElementById('pdfIframe');
+
+            // Fetch the PDF URL from Firebase Storage
+            getDownloadURL(ref(storage, filePath))
+                .then((url) => {
+                    pdfIframe.src = url;
+                    // Show the modal
+                    const pdfModal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
+                    pdfModal.show();
+                })
+                .catch((error) => {
+                    console.error("Error loading PDF:", error);
+                });
+        }
+        
+
+        fetchLatestMessages();
+        fetchLatestTrainingFiles();
+        fetchLatestForms();
+    </script>
+
+    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
