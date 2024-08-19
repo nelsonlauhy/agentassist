@@ -56,6 +56,10 @@
                             <label for="email">Email</label>
                             <input type="email" class="form-control" id="email" disabled>
                         </div>
+                        <div class="form-group mt-3">
+                            <label for="phoneNumber">Phone Number</label>
+                            <input type="phoneNumber" class="form-control" id="phoneNumber" disabled>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -87,6 +91,7 @@
                 document.getElementById('lastName').value = userData.lastName;
                 document.getElementById('branch').value = userData.branch;
                 document.getElementById('email').value = userData.email;
+                document.getElementById('phoneNumber').value = userData.phoneNumber;
 
                 // Display the profile photo or show the default icon if no photo exists
                 if (userData.photoURL) {
@@ -172,3 +177,4 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
