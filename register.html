@@ -40,7 +40,23 @@
                         <label for="password">Password</label>
                         <input type="password" class="form-control" id="password" placeholder="Enter password" required autocomplete="new-password">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block mt-4">Register</button>
+                    <div class="form-group mt-3">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="tel" class="form-control" id="phoneNumber" placeholder="+1 123 456 7890" required>
+                    </div>
+                    <div id="recaptcha-container"></div>
+                    <button type="button" class="btn btn-warning btn-block mt-4" id="sendCodeButton">Send Verification Code</button>
+
+                    <!-- Code Verification Form -->
+                    <div id="codeVerificationForm" class="mt-4" style="display:none;">
+                        <div class="form-group">
+                            <label for="verificationCode">Verification Code</label>
+                            <input type="text" class="form-control" id="verificationCode" placeholder="Enter verification code" required>
+                        </div>
+                        <button type="button" class="btn btn-success btn-block mt-4" id="verifyCodeButton">Verify Code</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-4" id="registerButton" disabled>Register</button>
                 </form>
                 <p class="text-center mt-3">Already have an account? <a href="login.html">Login here</a></p>
             </div>
@@ -53,10 +69,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
     <script type="module">
-        // Handle user registration
-        import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, linkWithPhoneNumber, RecaptchaVerifier } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+        const auth = getAuth();
+        const db = getFirestore();
+
+        // Initialize reCAPTCHA for phone verification
+        const recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+                // reCAPTCHA solved
+            }
+        }, auth);
+
+        // Handle sending the verification code
+        document.getElementById('sendCodeButton').addEventListener('click', async () => {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            try {
+                const confirmationResult = await linkWithPhoneNumber(auth.currentUser, phoneNumber, recaptchaVerifier);
+                window.confirmationResult = confirmationResult;
+                document.getElementById('codeVerificationForm').style.display = 'block';
+                document.getElementById('sendCodeButton').disabled = true;
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Handle verifying the code
+        document.getElementById('verifyCodeButton').addEventListener('click', async () => {
+            const code = document.getElementById('verificationCode').value;
+
+            try {
+                const result = await window.confirmationResult.confirm(code);
+                const user = result.user;
+
+                // Save the phone number and enable registration
+                document.getElementById('registerButton').disabled = false;
+                alert("Phone number verified successfully!");
+            } catch (error) {
+                alert("Verification failed: " + error.message);
+            }
+        });
+
+        // Handle user registration
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -73,19 +130,17 @@
             const encryptedPassword = CryptoJS.AES.encrypt(password, encryptionKey).toString();
 
             try {
-                const auth = getAuth();
-                const db = getFirestore();
-
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                // Save user information in Firestore, including the encrypted password
+                // Save user information in Firestore, including the encrypted password and phone number
                 await setDoc(doc(db, "users", user.uid), {
                     firstName,
                     lastName,
                     branch,
                     email,
-                    encryptedPassword, // Store the encrypted password
+                    phoneNumber: user.phoneNumber, // Save the verified phone number
+                    encryptedPassword,
                     createdAt: serverTimestamp(),
                     emailVerified: user.emailVerified,
                     uid: user.uid
@@ -107,4 +162,5 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
 
