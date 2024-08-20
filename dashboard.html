@@ -118,13 +118,14 @@
                     <h5 class="modal-title" id="mediaPreviewModalLabel">Media Preview</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" style="height: calc(100% - 56px);">
-                    <iframe id="mediaIframe" src="" width="100%" height="100%" style="border: none; display: none;" allowfullscreen></iframe>
+                <div class="modal-body" style="height: calc(100% - 56px); overflow-y: auto;">
+                    <iframe id="mediaIframe" src="" width="100%" height="100%" style="border: none; display: none; overflow-y: auto;" allowfullscreen></iframe>
                     <audio id="audioPlayer" controls style="width: 100%; display: none;"></audio>
                 </div>
             </div>
         </div>
     </div>
+
 
     <!-- Firebase SDKs for Modular Version -->
     <script type="module" src="js/firebase-config2.js"></script>
