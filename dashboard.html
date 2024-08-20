@@ -115,11 +115,11 @@
         <div class="modal-dialog modal-xl" style="max-width: 95%; height: 100%;">
             <div class="modal-content" style="height: 90%;">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="mediaPreviewModalLabel">Media View</h5>
+                    <h5 class="modal-title" id="mediaPreviewModalLabel">Media Preview</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="height: calc(100% - 56px); overflow-y: auto;">
-                    <iframe id="mediaIframe" src="" width="100%" height="100%" style="border: none;" allowfullscreen></iframe>
+                    <iframe id="mediaIframe" src="" width="100%" height="100%" style="border: none; display: none;" allowfullscreen></iframe>
                     <audio id="audioPlayer" controls style="width: 100%; display: none;"></audio>
                 </div>
             </div>
@@ -208,7 +208,7 @@
                         link.addEventListener("click", function (event) {
                             event.preventDefault();
                             const campaignid = this.getAttribute("data-campaignid");
-                            showMediaInModal(campaignid);
+                            handlePdfLink(campaignid);
                         });
                     });
                 })
@@ -249,8 +249,7 @@
                     document.querySelectorAll(".preview-training-link").forEach(link => {
                         link.addEventListener("click", function (event) {
                             event.preventDefault();
-                            const filePath = this.getAttribute("data-filepath");
-                            showMediaInModal(filePath);
+                            handlePdfLink(this.getAttribute("data-filepath"));
                         });
                     });
                 })
@@ -299,12 +298,39 @@
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
                     const formpath = this.getAttribute('data-formpath');
-                    showMediaInModal(formpath);
+                    handlePdfLink(formpath);
                 });
             });
         }
 
-        // Function to show the media (PDF, Video, or MP3) in a modal
+        // Function to handle PDF link clicks
+        function handlePdfLink(filePath) {
+            if (!filePath) {
+                console.error("Error: filePath is undefined.");
+                return;
+            }
+
+            if (isIOSDevice()) {
+                // Open directly in a new tab for iOS Safari
+                getDownloadURL(ref(storage, filePath))
+                    .then((url) => {
+                        window.open(url, '_blank');
+                    })
+                    .catch((error) => {
+                        console.error("Error loading PDF:", error);
+                    });
+            } else {
+                // Fallback to the modal preview for non-iOS devices
+                showMediaInModal(filePath);
+            }
+        }
+
+        // Function to check if the device is iOS (iPhone, iPad)
+        function isIOSDevice() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        // Function to show the media (PDF, Video, or MP3) in a modal for non-iOS devices
         function showMediaInModal(filePath, isAudio = false) {
             if (!filePath) {
                 console.error("Error: filePath is undefined.");
