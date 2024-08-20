@@ -168,22 +168,20 @@
             const representative = document.getElementById('representative').value;
             const roll = document.getElementById('roll').value;
             const keywords = document.getElementById('keywords').value.trim().toLowerCase();
-
+        
             let q = query(
                 collection(db, "formflow"),
                 where("ownershiptypename", "==", ownership)
             );
-
-            // Add the representative filter only if it's not "All"
+        
             if (representative !== "All") {
                 q = query(q, where("categoryname", "==", representative));
             }
-
-            // Add the roll filter only if it's not "All"
+        
             if (roll !== "All") {
                 q = query(q, where("categorysubname", "==", roll));
             }
-
+        
             try {
                 const querySnapshot = await getDocs(q);
                 const dataByStage = {
@@ -191,16 +189,14 @@
                     "Offer": [],
                     "Post-Offer": []
                 };
-
-                // Group data by stage names
+        
                 querySnapshot.forEach(doc => {
                     const data = doc.data();
-
-                    // Perform client-side filtering for the keyword search
+        
                     if (keywords && !(data.formcode.toLowerCase().includes(keywords) || data.formfullname.toLowerCase().includes(keywords))) {
-                        return; // Skip this document if it doesn't match the keyword search
+                        return;
                     }
-
+        
                     if (dataByStage[data.stagename]) {
                         dataByStage[data.stagename].push({
                             formcode: data.formcode,
@@ -209,49 +205,42 @@
                         });
                     }
                 });
-
-                // Build the accordion structure
+        
                 const accordion = document.getElementById("formFlowAccordion");
-                accordion.innerHTML = ''; // Clear existing content
+                accordion.innerHTML = '';
                 let stageIndex = 0;
                 for (const stage in dataByStage) {
                     const collapseId = `collapseStage${stageIndex}`;
                     const itemId = `headingStage${stageIndex}`;
                     const isFirst = stageIndex === 0;
                     const collapseClass = isFirst ? 'collapse show' : 'collapse';
-                    const recordCount = dataByStage[stage].length; // Get the number of records
-
+                    const recordCount = dataByStage[stage].length;
+        
                     let newItem = `
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingStage${stageIndex}">
-                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStage${stageIndex}" aria-expanded="${isFirst}" aria-controls="collapseStage${stageIndex}">
+                            <h2 class="accordion-header" id="${itemId}">
+                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
                                     ${stage} <span class="badge bg-secondary ms-2">${recordCount}</span>
                                 </button>
                             </h2>
-                            <div id="collapseStage${stageIndex}" class="accordion-collapse ${collapseClass}" aria-labelledby="headingStage${stageIndex}" data-bs-parent="#formFlowAccordion">
+                            <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
                                 <div class="accordion-body">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 20%;">Form Code</th>
-                                                <th style="width: 80%;">Form Full Name</th>
-                                            </tr>
-                                        </thead>
+                                    <table class="table table-borderless">
                                         <tbody>
                                             ${dataByStage[stage].map(file => `
-                                                <tr>
-                                                    <td><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formcode}</a></td>
-                                                    <td><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></td>
+                                                <tr style="line-height: 1.2;">
+                                                    <td style="width: 30%; padding: 4px 8px;"><a href="#" class="file-link" data-formpath="${file.formpath}"><strong>${file.formcode}</strong></a></td>
+                                                    <td style="width: 70%; padding: 4px 8px;"><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></td>
                                                 </tr>
+                                                <tr style="height: 5px;"></tr>
                                             `).join('')}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
-
                     `;
-
+        
                     accordion.innerHTML += newItem;
                     stageIndex++;
                 }
@@ -259,6 +248,7 @@
                 console.error("Error getting documents: ", error);
             }
         }
+        
 
         // Handle filter application
         document.getElementById('applyFilter').addEventListener('click', function () {
