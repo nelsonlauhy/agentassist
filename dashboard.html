@@ -35,7 +35,7 @@
 
                 <!-- Block Container -->
                 <div class="row">
-                    <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="col-lg-5 col-md-5 mb-4">
                         <div class="content-block">
                             <h6 class="d-flex justify-content-between align-items-center">
                                 Latest Message
@@ -48,7 +48,18 @@
                             </table>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="col-lg-7 col-md-7 mb-4">
+                        <div class="content-block">
+                            <h6>Common Form List with links</h6>
+                            <table class="table borderless">
+                                <tbody id="formTableBody">
+                                    <!-- Dynamic content will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12 mb-4"> <!-- Reduced mb-4 to mb-2 -->
                         <div class="content-block">
                             <h6 class="d-flex justify-content-between align-items-center">
                                 Training Material
@@ -61,19 +72,9 @@
                             </table>
                         </div>
                     </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
+                    
+                    <div class="col-lg-12"> <!-- Existing block for Portal Update -->
                         <div class="content-block">
-                            <h6>Common Form List with links</h6>
-                            <table class="table borderless">
-                                <tbody id="formTableBody">
-                                    <!-- Dynamic content will be inserted here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="col-lg-12">
-                        <div class="content-block content-block-large">
                             <h6>Portal update</h6>
                             <table class="table borderless">
                                 <tbody>
@@ -97,6 +98,7 @@
                             </table>
                         </div>
                     </div>
+                    
                 </div>
 
             </div>
@@ -108,16 +110,17 @@
         </div>
     </div>
 
-    <!-- Modal for PDF Preview -->
-    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+    <!-- Modal for Media Preview (PDF, Video, MP3) -->
+    <div class="modal fade" id="mediaPreviewModal" tabindex="-1" aria-labelledby="mediaPreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" style="max-width: 95%; height: 100%;">
+            <div class="modal-content" style="height: 90%;">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="pdfPreviewModalLabel">PDF Preview</h5>
+                    <h5 class="modal-title" id="mediaPreviewModalLabel">Media Preview</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <iframe id="pdfIframe" src="" width="100%" height="500px" style="border: none;"></iframe>
+                <div class="modal-body" style="height: calc(100% - 56px);">
+                    <iframe id="mediaIframe" src="" width="100%" height="100%" style="border: none; display: none;" allowfullscreen></iframe>
+                    <audio id="audioPlayer" controls style="width: 100%; display: none;"></audio>
                 </div>
             </div>
         </div>
@@ -189,7 +192,7 @@
                         const messageRow = `
                             <tr>
                                 <td style="width: 80px; font-weight: bold;">
-                                    <a href="#" class="preview-link" data-campaignid="messagebox/${data.campaignid}.pdf">${data.sentdate}</a>
+                                    ${data.sentdate}
                                 </td>
                                 <td>
                                     <a href="#" class="preview-link" data-campaignid="messagebox/${data.campaignid}.pdf">${data.subject}</a>
@@ -204,7 +207,7 @@
                         link.addEventListener("click", function (event) {
                             event.preventDefault();
                             const campaignid = this.getAttribute("data-campaignid");
-                            showPdfInModal(campaignid);
+                            showMediaInModal(campaignid);
                         });
                     });
                 })
@@ -234,7 +237,7 @@
 
                         const trainingRow = `
                             <tr>
-                                <td style="width: 250px;">${data.folder}</td>
+                                <td style="width: 80px;">${data.folder}</td>
                                 <td><a href="#" class="preview-training-link" data-filepath="${filePath}">${data.filename}</a></td>
                             </tr>
                         `;
@@ -246,7 +249,7 @@
                         link.addEventListener("click", function (event) {
                             event.preventDefault();
                             const filePath = this.getAttribute("data-filepath");
-                            showPdfInModal(filePath);
+                            showMediaInModal(filePath);
                         });
                     });
                 })
@@ -273,7 +276,7 @@
                         const data = doc.data();
                         const formRow = `
                             <tr>
-                                <td style="width: 100px; font-weight: bold;"><a href="#" class="preview-link" data-formpath="${data.formpath}">${data.formcode}</a></td>
+                                <td  style="width: 80px;">${data.formcode}</td>
                                 <td><a href="#" class="preview-link" data-formpath="${data.formpath}">${data.formfullname}</a></td>
                             </tr>
                         `;
@@ -295,33 +298,61 @@
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
                     const formpath = this.getAttribute('data-formpath');
-                    showPdfInModal(formpath);
+                    showMediaInModal(formpath);
                 });
             });
         }
 
-        // Function to show the PDF in a modal
-        function showPdfInModal(filePath) {
+        // Function to show the media (PDF, Video, or MP3) in a modal
+        function showMediaInModal(filePath, isAudio = false) {
             if (!filePath) {
                 console.error("Error: filePath is undefined.");
                 return;
             }
 
-            const pdfIframe = document.getElementById('pdfIframe');
+            const mediaIframe = document.getElementById('mediaIframe');
+            const audioPlayer = document.getElementById('audioPlayer');
 
-            // Fetch the PDF URL from Firebase Storage
+            // Clear previous media source
+            mediaIframe.src = '';
+            audioPlayer.src = '';
+
+            // Determine whether the content is an audio file
+            if (isAudio) {
+                mediaIframe.style.display = 'none';
+                audioPlayer.style.display = 'block';
+            } else {
+                audioPlayer.style.display = 'none';
+                mediaIframe.style.display = 'block';
+            }
+
+            // Fetch the media URL from Firebase Storage
             getDownloadURL(ref(storage, filePath))
                 .then((url) => {
-                    pdfIframe.src = url;
+                    if (isAudio) {
+                        audioPlayer.src = url;
+                        audioPlayer.play();
+                    } else {
+                        mediaIframe.src = url;
+                        // Enable full screen if it's a video
+                        mediaIframe.allowFullscreen = true;
+                    }
+
                     // Show the modal
-                    const pdfModal = new bootstrap.Modal(document.getElementById('pdfPreviewModal'));
-                    pdfModal.show();
+                    const mediaModal = new bootstrap.Modal(document.getElementById('mediaPreviewModal'));
+                    mediaModal.show();
                 })
                 .catch((error) => {
-                    console.error("Error loading PDF:", error);
+                    console.error("Error loading media:", error);
                 });
+
+            // Stop the media when the modal is closed
+            $('#mediaPreviewModal').on('hidden.bs.modal', function () {
+                mediaIframe.src = '';
+                audioPlayer.pause();
+                audioPlayer.src = '';
+            });
         }
-        
 
         fetchLatestMessages();
         fetchLatestTrainingFiles();
@@ -334,3 +365,4 @@
 </body>
 
 </html>
+
