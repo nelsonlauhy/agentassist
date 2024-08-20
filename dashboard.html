@@ -32,7 +32,6 @@
                     <!-- Flexbox container with flex-wrap -->
                     <h2 class="my-4 mb-0">Dashboard</h2>
                     <h6 class="text-muted ms-3 mb-1" id="welcomeMessage">Welcome back</h6>
-                    <!-- Updated to dynamically insert the user's name -->
                 </div><br>
 
                 <!-- Block Container -->
@@ -61,7 +60,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-12 mb-4"> <!-- Reduced mb-4 to mb-2 -->
+                    <div class="col-lg-12 mb-4">
                         <div class="content-block">
                             <h6 class="d-flex justify-content-between align-items-center">
                                 Training Material
@@ -75,7 +74,7 @@
                         </div>
                     </div>
                     
-                    <div class="col-lg-12"> <!-- Existing block for Portal Update -->
+                    <div class="col-lg-12">
                         <div class="content-block">
                             <h6>Portal update</h6>
                             <table class="table borderless">
@@ -121,7 +120,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="height: calc(100% - 56px); overflow-y: auto;">
-                    <!-- PDF.js Viewer -->
+                    <!-- PDF.js Viewer for mobile -->
                     <div id="pdfViewer" style="height: 100%; width: 100%; overflow-y: auto; display: none;">
                         <div class="d-flex justify-content-between mb-2">
                             <button id="prevPage" class="btn btn-secondary btn-sm">Previous</button>
@@ -137,7 +136,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- Firebase SDKs for Modular Version -->
     <script type="module" src="js/firebase-config2.js"></script>
@@ -316,23 +314,30 @@
             });
         }
 
-        // Function to handle PDF preview with PDF.js
+        // Function to handle PDF preview with PDF.js only on mobile
         function handlePdfLink(filePath) {
             if (!filePath) {
                 console.error("Error: filePath is undefined.");
                 return;
             }
 
+            // Detect if the device is mobile
+            const isMobileDevice = window.innerWidth <= 768;
+
             getDownloadURL(ref(storage, filePath))
                 .then((url) => {
-                    showPdfWithPdfJs(url);
+                    if (isMobileDevice) {
+                        showPdfWithPdfJs(url); // Use PDF.js on mobile devices
+                    } else {
+                        window.open(url, "_blank"); // Open in new tab on desktop
+                    }
                 })
                 .catch((error) => {
                     console.error("Error loading PDF:", error);
                 });
         }
 
-        // Function to show PDFs with PDF.js in the modal
+        // Function to show PDFs with PDF.js in the modal (for mobile)
         function showPdfWithPdfJs(url) {
             const pdfViewer = document.getElementById('pdfViewer');
             const pdfCanvas = document.getElementById('pdfCanvas');
