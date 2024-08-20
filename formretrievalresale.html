@@ -223,25 +223,33 @@
 
                     let newItem = `
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="${itemId}">
-                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
+                            <h2 class="accordion-header" id="headingStage${stageIndex}">
+                                <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStage${stageIndex}" aria-expanded="${isFirst}" aria-controls="collapseStage${stageIndex}">
                                     ${stage} <span class="badge bg-secondary ms-2">${recordCount}</span>
                                 </button>
                             </h2>
-                            <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#formFlowAccordion">
+                            <div id="collapseStage${stageIndex}" class="accordion-collapse ${collapseClass}" aria-labelledby="headingStage${stageIndex}" data-bs-parent="#formFlowAccordion">
                                 <div class="accordion-body">
-                                    <ul class="list-unstyled">
-                    `;
-
-                    dataByStage[stage].forEach(file => {
-                        newItem += `<li><a href="#" class="file-link" data-formpath="${file.formpath}"><strong>${file.formcode}</strong> - ${file.formfullname}</a></li>`;
-                    });
-
-                    newItem += `
-                                    </ul>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 20%;">Form Code</th>
+                                                <th style="width: 80%;">Form Full Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${dataByStage[stage].map(file => `
+                                                <tr>
+                                                    <td><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formcode}</a></td>
+                                                    <td><a href="#" class="file-link" data-formpath="${file.formpath}">${file.formfullname}</a></td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
+
                     `;
 
                     accordion.innerHTML += newItem;
