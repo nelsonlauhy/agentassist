@@ -40,34 +40,45 @@ async function getResponse(prompt) {
     // Convert user input to lowercase for case-insensitive comparison
     const userInputLower = prompt.toLowerCase();
 
-    // Define routing categories
-    const contactKeywords = ['contact', 'reach', 'email'];
-    const supportKeywords = ['help', 'issue', 'support', 'troubleshoot'];
-    const generalKeywords = ['information', 'inquiry', 'details'];
+    // Define intent categories with associated keywords
+    const intentCategories = {
+        contact: ['contact', 'reach', 'email'],
+        support: ['help', 'issue', 'support', 'troubleshoot'],
+        general: ['information', 'inquiry', 'details']
+    };
 
-    // Intent Classification and Routing
-    if (userInputLower.includes('nelson') && contactKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "11111";
-    } else if (contactKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "22222";
-    } else if (supportKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "33333";
-    } else if (generalKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "44444";
+    // Detect intent based on keywords
+    const detectedIntent = Object.keys(intentCategories).find(intent =>
+        intentCategories[intent].some(keyword => userInputLower.includes(keyword))
+    );
+
+    // Route the response based on the detected intent
+    if (detectedIntent === 'contact') {
+        return "It seems like you're looking for internal contact information.";
+    } else if (detectedIntent === 'support') {
+        return "It seems like you need internal support.";
+    } else if (detectedIntent === 'general') {
+        return "It sounds like you have a internal general inquiry.";
     } else {
         // If the query doesn't match any predefined intent, fallback to AI-generated response
-        const response = await fetch('/.netlify/functions/fetch-openai', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ prompt })
-        });
+        try {
+            const response = await fetch('/.netlify/functions/fetch-openai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt })
+            });
 
-        const data = await response.json();
-        return data.message || "I'm not sure how to help with that. Could you clarify?";
+            const data = await response.json();
+            return data.message || "I'm not sure how to help with that. Could you clarify?";
+        } catch (error) {
+            console.error("Error fetching response:", error);
+            return "There was an error processing your request. Please check the console for more details.";
+        }
     }
 }
+
 
 
 function formatPromptWithHistory(userInput) {
