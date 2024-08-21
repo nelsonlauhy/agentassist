@@ -59,7 +59,7 @@
             background-repeat: no-repeat;
             background-position: center;
             transform: rotate(180deg); /* Rotates the image 180 degrees */
-            opacity: 0.7; /* Optional: Control the opacity of the icon */
+            opacity: 0.7;
         }
 
         #chatHistory {
@@ -103,7 +103,10 @@
         <!-- Custom Resize Handle -->
         <div id="resizeHandle"></div>
         <h5 class="text-center">Agent Chatbot</h5>
-        <div id="chatHistory"></div>
+        <div id="chatHistory">
+            <!-- Example messages -->
+            <p><b>Bot:</b> Hi! How can I assist you today?</p>
+        </div>
         <input type="text" id="userInput" placeholder="Type your message here..." />
         <button id="sendBtn" class="btn btn-primary">Send</button>
     </div>
@@ -153,10 +156,29 @@
             document.removeEventListener("mouseup", stopResize);
         }
 
-        // Load the previous conversation when the page loads
-        window.addEventListener("load", () => {
-            
+        // Ensure chatbot interaction logic works
+        document.getElementById("sendBtn").addEventListener("click", function() {
+            const userInput = document.getElementById("userInput").value;
+            const chatHistory = document.getElementById("chatHistory");
+
+            if (userInput.trim() !== "") {
+                const userMessage = document.createElement("p");
+                userMessage.innerHTML = `<b>User:</b> ${userInput}`;
+                chatHistory.appendChild(userMessage);
+
+                // Simulate bot response
+                const botMessage = document.createElement("p");
+                botMessage.innerHTML = `<b>Bot:</b> Processing your request...`;
+                chatHistory.appendChild(botMessage);
+
+                // Scroll to the latest message
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                // Clear input field
+                document.getElementById("userInput").value = "";
+            }
         });
+
     </script>
 
 </body>
