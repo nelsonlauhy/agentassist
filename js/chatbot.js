@@ -1,6 +1,15 @@
-import { firebaseConfig } from './config.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
 import { getFirestore, collection, query, where, getDocs, setDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
+    authDomain: "agentassist-72f8e.firebaseapp.com",
+    projectId: "agentassist-72f8e",
+    storageBucket: "agentassist-72f8e.appspot.com",
+    messagingSenderId: "353344108954",
+    appId: "1:353344108954:web:ee89b147ca641e63b5e223"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -86,7 +95,17 @@ async function searchContactInFirestore(userInput) {
             const doc = querySnapshot.docs[0]; // Get the first matched document
             const data = doc.data();
             console.log("Contact found:", data);
-            return `Name: ${data.displayname}\nBranch: ${data.branch}\nTitle: ${data.title}\nEmail: ${data.email}`;
+
+            // Format the response message to include all relevant fields
+            return `
+Name: ${data.displayname}
+Branch: ${data.branch}
+Title: ${data.title}
+Email: ${data.email}
+Direct Tel: ${data.directTel}
+Personal Tel: ${data.personalTel}
+Ext: ${data.ext}
+`;
         } else {
             console.log("No contact found for:", nameKeywords);
             return null;
@@ -98,9 +117,11 @@ async function searchContactInFirestore(userInput) {
 }
 
 function extractNameFromQuery(userInput) {
-    // Basic heuristic to extract name from the query
-    const words = userInput.toLowerCase().split(" ");
-    const nameIndex = words.findIndex(word => ["contact", "phone", "email", "reach", "information"].includes(word));
+    // Improved heuristic to extract name from the query
+    const words = userInput.split(" ");
+    const nameIndex = words.findIndex(word => ["contact", "phone", "email", "reach", "information"].includes(word.toLowerCase()));
+
+    // The name is likely to be the words after the keyword
     if (nameIndex >= 0 && nameIndex < words.length - 1) {
         const extractedName = words.slice(nameIndex + 1).join(" ").trim();
         console.log("Extracted name:", extractedName);
