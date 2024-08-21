@@ -72,13 +72,16 @@
             // Apply NLP analysis
             const nlpResult = analyzeUserInput(userInput);
         
-            // You can log or debug the NLP result if needed
-            console.log("NLP Analysis Result:", nlpResult);
+            let response;
+            if (nlpResult.intent === 'search_contact' && nlpResult.searchName) {
+                // Route to search the contact information
+                response = await searchContactInfo(nlpResult.searchName);
+            } else {
+                // Use the refined prompt for OpenAI
+                const openAiPrompt = preparePromptForOpenAI(nlpResult.refinedPrompt);
+                response = await getResponse(openAiPrompt);
+            }
         
-            // Use the refined prompt for OpenAI
-            const openAiPrompt = preparePromptForOpenAI(nlpResult.refinedPrompt);
-        
-            const response = await getResponse(openAiPrompt);
             displayMessage('Bot', response);
         
             // Store bot response in conversation history
@@ -87,6 +90,7 @@
             // Save the conversation to Firestore
             saveConversationToFirestore();
         }
+        
         
 
         function displayMessage(sender, message) {

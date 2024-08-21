@@ -1,26 +1,27 @@
 // nlp.js
 
 /**
- * This function analyzes the user input and applies basic NLP routing.
- * You can extend this logic for more advanced NLP tasks.
+ * Analyze the user input for specific intents and refine the prompt.
+ * This includes routing for queries containing "email", "contact", or "reach".
  * 
  * @param {string} userInput - The raw input from the user.
- * @returns {object} - An object containing the intent and the refined prompt.
+ * @returns {object} - An object containing the intent and the refined prompt or search keywords.
  */
 function analyzeUserInput(userInput) {
-    // Simple keyword-based NLP routing logic
-    if (userInput.toLowerCase().includes('real estate')) {
+    // Lowercase the user input for easier comparison
+    const lowerInput = userInput.toLowerCase();
+
+    if (lowerInput.includes('email') || lowerInput.includes('contact') || lowerInput.includes('reach')) {
+        // Extract the possible name from the input (basic keyword extraction)
+        const nameMatch = userInput.match(/email for (.+)|reach (.+)|contact (.+)/i);
+        const searchName = nameMatch ? nameMatch[1] || nameMatch[2] || nameMatch[3] : '';
+
         return {
-            intent: 'real_estate',
-            refinedPrompt: `The user is asking about real estate: ${userInput}`
-        };
-    } else if (userInput.toLowerCase().includes('sales report')) {
-        return {
-            intent: 'sales_report',
-            refinedPrompt: `The user is asking about sales reports: ${userInput}`
+            intent: 'search_contact',
+            searchName: searchName.trim()
         };
     } else {
-        // Default route if no specific keywords are matched
+        // Default intent handling
         return {
             intent: 'general',
             refinedPrompt: userInput
@@ -29,12 +30,40 @@ function analyzeUserInput(userInput) {
 }
 
 /**
- * This function can be used to process the refined prompt further if needed.
+ * Handle the search for contact information in Firestore based on the extracted name.
  * 
- * @param {string} refinedPrompt - The processed prompt from the NLP analysis.
- * @returns {string} - The prompt to be sent to the OpenAI API.
+ * @param {string} searchName - The name to search for in the directory collection.
+ * @returns {Promise<string>} - The formatted search result.
  */
-function preparePromptForOpenAI(refinedPrompt) {
-    // Here you can further refine the prompt or add context before sending it to OpenAI
-    return refinedPrompt;
+async function searchContactInfo(searchName) {
+    try {
+        const directoryRef = db.collection('directory');
+        const snapshot = await directoryRef.get();
+
+        // Store all entries in an array for manual searching
+        const contactsArray = [];
+        snapshot.forEach(doc => contactsArray.push(doc.data()));
+
+        // Filter the array for matching names (basic search)
+        const results = contactsArray.filter(contact => 
+            contact.displayfullname.toLowerCase().includes(searchName.toLowerCase())
+        );
+
+        // Format the results
+        if (results.length > 0) {
+            let resultText = 'Here is the contact information I found:\n';
+            results.forEach(contact => {
+                resultText += `Name: ${contact.displayfullname}\n`;
+                resultText += `Email: ${contact.email}\n`;
+                resultText += `Title: ${contact.title}\n`;
+                resultText += `Branch: ${contact.branch}\n\n`;
+            });
+            return resultText;
+        } else {
+            return `Sorry, I couldn't find any contact information for "${searchName}".`;
+        }
+    } catch (error) {
+        console.error("Error searching contact information:", error);
+        return "There was an error retrieving contact information. Please try again later.";
+    }
 }
