@@ -25,9 +25,9 @@
         </div>
     </div>
 
-    <!-- Include Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
+    <!-- Include Firebase v8 (Non-Modular) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
     <!-- Configuration -->
     <script>
@@ -116,10 +116,11 @@
         }
 
         function saveConversationToFirestore() {
-            const conversationRef = db.collection('conversations').doc(); // Create a new document
-            conversationRef.set({
+            db.collection('conversations').add({
                 conversation: conversationHistory,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch((error) => {
+                console.error("Error saving conversation:", error);
             });
         }
 
