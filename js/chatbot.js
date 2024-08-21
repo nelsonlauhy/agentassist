@@ -28,22 +28,24 @@ async function sendMessage() {
 
     // Check if the input is related to contact information
     if (isContactQuery(userInput)) {
+        console.log("Contact query detected: Searching Firestore...");
         const contactInfo = await searchContactInFirestore(userInput);
         if (contactInfo) {
             displayMessage('Bot', contactInfo);
             conversationHistory.push({ sender: 'Bot', message: contactInfo });
             saveConversationToFirestore();
-            return;
+            return; // Stop further processing
         } else {
             const errorMessage = "Sorry, I couldn't find any contact information related to that name.";
             displayMessage('Bot', errorMessage);
             conversationHistory.push({ sender: 'Bot', message: errorMessage });
             saveConversationToFirestore();
-            return;
+            return; // Stop further processing
         }
     }
 
     // If not a contact query, proceed with regular OpenAI processing
+    console.log("Sending query to OpenAI...");
     const response = await getResponse(userInput);
     displayMessage('Bot', response);
 
@@ -57,12 +59,23 @@ async function sendMessage() {
 function isContactQuery(userInput) {
     // Basic keyword matching for contact queries
     const contactKeywords = ["contact", "phone", "email", "number", "reach", "information"];
-    return contactKeywords.some(keyword => userInput.toLowerCase().includes(keyword));
+    const containsContactKeyword = contactKeywords.some(keyword => userInput.toLowerCase().includes(keyword));
+
+    // Only proceed if a contact keyword is present
+    if (containsContactKeyword) {
+        console.log("Potential contact query detected:", userInput);
+        return true;
+    }
+    return false;
 }
 
 async function searchContactInFirestore(userInput) {
     const nameKeywords = extractNameFromQuery(userInput);
-    if (!nameKeywords) return null;
+    if (!nameKeywords) {
+        console.log("Name extraction failed.");
+        return null;
+    }
+    console.log("Searching for contact:", nameKeywords);
 
     try {
         const directoryRef = collection(db, 'directory');
@@ -70,10 +83,12 @@ async function searchContactInFirestore(userInput) {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-            const doc = querySnapshot.docs[0];
+            const doc = querySnapshot.docs[0]; // Get the first matched document
             const data = doc.data();
+            console.log("Contact found:", data);
             return `Name: ${data.displayname}\nBranch: ${data.branch}\nTitle: ${data.title}\nEmail: ${data.email}`;
         } else {
+            console.log("No contact found for:", nameKeywords);
             return null;
         }
     } catch (error) {
@@ -87,8 +102,11 @@ function extractNameFromQuery(userInput) {
     const words = userInput.toLowerCase().split(" ");
     const nameIndex = words.findIndex(word => ["contact", "phone", "email", "reach", "information"].includes(word));
     if (nameIndex >= 0 && nameIndex < words.length - 1) {
-        return words.slice(nameIndex + 1).join(" ").trim();
+        const extractedName = words.slice(nameIndex + 1).join(" ").trim();
+        console.log("Extracted name:", extractedName);
+        return extractedName;
     }
+    console.log("No name extracted from query.");
     return null;
 }
 
