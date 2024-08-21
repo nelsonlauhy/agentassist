@@ -47,13 +47,13 @@ async function getResponse(prompt) {
 
     // Intent Classification and Routing
     if (userInputLower.includes('nelson') && contactKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "I'm sorry, I don't have any specific contact information for \"Nelson.\" If you could provide more details or context, I may be able to assist you in finding the contact information you need.";
+        return "11111";
     } else if (contactKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "It seems like you're looking for contact information. Could you please specify the name or organization you're trying to contact?";
+        return "22222";
     } else if (supportKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "It seems like you need support. Could you please describe the issue you're facing so I can assist further?";
+        return "33333";
     } else if (generalKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "It sounds like you have a general inquiry. How can I assist you with more details?";
+        return "44444";
     } else {
         // If the query doesn't match any predefined intent, fallback to AI-generated response
         const response = await fetch('/.netlify/functions/fetch-openai', {
