@@ -37,49 +37,28 @@ function displayMessage(sender, message) {
 }
 
 async function getResponse(prompt) {
-    // Convert user input to lowercase for case-insensitive comparison
-    const userInputLower = prompt.toLowerCase();
+    try {
+        const response = await fetch('/.netlify/functions/fetch-openai', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prompt: formatPromptWithHistory(prompt) })
+        });
 
-    // Define intent categories with associated keywords
-    const intentCategories = {
-        contact: ['contact', 'reach', 'email'],
-        support: ['help', 'issue', 'support', 'troubleshoot'],
-        general: ['information', 'inquiry', 'details']
-    };
+        const data = await response.json();
 
-    // Detect intent based on keywords
-    const detectedIntent = Object.keys(intentCategories).find(intent =>
-        intentCategories[intent].some(keyword => userInputLower.includes(keyword))
-    );
-
-    // Route the response based on the detected intent
-    if (detectedIntent === 'contact') {
-        return "It seems like you're looking for internal contact information.";
-    } else if (detectedIntent === 'support') {
-        return "It seems like you need internal support.";
-    } else if (detectedIntent === 'general') {
-        return "It sounds like you have a internal general inquiry.";
-    } else {
-        // If the query doesn't match any predefined intent, fallback to AI-generated response
-        try {
-            const response = await fetch('/.netlify/functions/fetch-openai', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ prompt })
-            });
-
-            const data = await response.json();
-            return data.message || "I'm not sure how to help with that. Could you clarify?";
-        } catch (error) {
-            console.error("Error fetching response:", error);
-            return "There was an error processing your request. Please check the console for more details.";
+        if (data.message) {
+            return data.message;
+        } else {
+            console.error("Unexpected response:", data);
+            return "Sorry, I couldn't generate a response. Please try again.";
         }
+    } catch (error) {
+        console.error("Error fetching response:", error);
+        return "There was an error processing your request. Please check the console for more details.";
     }
 }
-
-
 
 function formatPromptWithHistory(userInput) {
     // Create a prompt that includes the conversation history
@@ -109,3 +88,4 @@ function loadConversationFromFirebase() {
 
 // Load the conversation history when the page loads
 loadConversationFromFirebase();
+
