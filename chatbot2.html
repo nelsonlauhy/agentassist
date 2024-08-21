@@ -7,6 +7,7 @@
     <title>Chatbot</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/chatbot2.css" rel="stylesheet">
+    <script src="js/nlp.js"></script>
 </head>
 
 <body>
@@ -61,22 +62,32 @@
         async function sendMessage() {
             const userInput = document.getElementById('user-input').value.trim();
             if (!userInput) return;
-
+        
             displayMessage('You', userInput);
             document.getElementById('user-input').value = '';
-
+        
             // Store user message in conversation history
             conversationHistory.push({ sender: 'You', message: userInput });
-
-            const response = await getResponse(userInput);
+        
+            // Apply NLP analysis
+            const nlpResult = analyzeUserInput(userInput);
+        
+            // You can log or debug the NLP result if needed
+            console.log("NLP Analysis Result:", nlpResult);
+        
+            // Use the refined prompt for OpenAI
+            const openAiPrompt = preparePromptForOpenAI(nlpResult.refinedPrompt);
+        
+            const response = await getResponse(openAiPrompt);
             displayMessage('Bot', response);
-
+        
             // Store bot response in conversation history
             conversationHistory.push({ sender: 'Bot', message: response });
-
+        
             // Save the conversation to Firestore
             saveConversationToFirestore();
         }
+        
 
         function displayMessage(sender, message) {
             const chatbox = document.getElementById('chatbox');
