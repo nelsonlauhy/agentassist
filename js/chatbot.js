@@ -36,7 +36,7 @@ async function loadDirectoryData() {
         const querySnapshot = await getDocs(directoryRef);
 
         directoryData = querySnapshot.docs.map(doc => doc.data());
-        console.log('Directory data loaded:', directoryData);
+        console.log('Directory data loaded:', directoryData); // Ensure data is loaded correctly
     } catch (error) {
         console.error('Error loading directory data:', error);
     }
@@ -109,7 +109,7 @@ function searchContactInArray(userInput) {
 
     // Filter the directory data based on the search term
     const filteredResults = directoryData.filter(contact =>
-        contact.displayname.toLowerCase().includes(searchTerm)
+        contact.displayname && contact.displayname.toLowerCase().includes(searchTerm)
     );
 
     if (filteredResults.length > 0) {
@@ -230,3 +230,6 @@ function loadConversationFromFirestore() {
 
 // Load the latest conversation history when the page loads
 loadConversationFromFirestore();
+
+// Load the entire directory into an array for later searching
+loadDirectoryData();
