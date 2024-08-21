@@ -1,35 +1,6 @@
 // nlp.js
 
 /**
- * Analyze the user input for specific intents and refine the prompt.
- * This includes routing for queries containing "email", "contact", or "reach".
- * 
- * @param {string} userInput - The raw input from the user.
- * @returns {object} - An object containing the intent and the refined prompt or search keywords.
- */
-function analyzeUserInput(userInput) {
-    // Lowercase the user input for easier comparison
-    const lowerInput = userInput.toLowerCase();
-
-    if (lowerInput.includes('email') || lowerInput.includes('contact') || lowerInput.includes('reach')) {
-        // Extract the possible name from the input (basic keyword extraction)
-        const nameMatch = userInput.match(/email for (.+)|reach (.+)|contact (.+)/i);
-        const searchName = nameMatch ? nameMatch[1] || nameMatch[2] || nameMatch[3] : '';
-
-        return {
-            intent: 'search_contact',
-            searchName: searchName.trim()
-        };
-    } else {
-        // Default intent handling
-        return {
-            intent: 'general',
-            refinedPrompt: userInput
-        };
-    }
-}
-
-/**
  * Handle the search for contact information in Firestore based on the extracted name.
  * 
  * @param {string} searchName - The name to search for in the directory collection.
@@ -46,6 +17,7 @@ async function searchContactInfo(searchName) {
 
         // Filter the array for matching names (basic search)
         const results = contactsArray.filter(contact => 
+            contact.displayfullname && // Check if displayfullname exists
             contact.displayfullname.toLowerCase().includes(searchName.toLowerCase())
         );
 
@@ -54,9 +26,9 @@ async function searchContactInfo(searchName) {
             let resultText = 'Here is the contact information I found:\n';
             results.forEach(contact => {
                 resultText += `Name: ${contact.displayfullname}\n`;
-                resultText += `Email: ${contact.email}\n`;
-                resultText += `Title: ${contact.title}\n`;
-                resultText += `Branch: ${contact.branch}\n\n`;
+                resultText += `Email: ${contact.email || "N/A"}\n`; // Handle missing email
+                resultText += `Title: ${contact.title || "N/A"}\n`; // Handle missing title
+                resultText += `Branch: ${contact.branch || "N/A"}\n\n`; // Handle missing branch
             });
             return resultText;
         } else {
