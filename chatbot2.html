@@ -9,13 +9,116 @@
 <body>
     <div class="chat-container">
         <div id="chatbox"></div>
-        <input type="text" id="user-input" placeholder="You can ask me anything...">
+        <input type="text" id="user-input" placeholder="Ask me anything...">
         <button onclick="sendMessage()">Send</button>
     </div>
 
+    <!-- Include Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/chatbot.js"></script>
+
+    <!-- Configuration -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
+            authDomain: "agentassist-72f8e.firebaseapp.com",
+            databaseURL: "https://agentassist-72f8e-default-rtdb.firebaseio.com",
+            projectId: "agentassist-72f8e",
+            storageBucket: "agentassist-72f8e.appspot.com",
+            messagingSenderId: "353344108954",
+            appId: "1:353344108954:web:ee89b147ca641e63b5e223"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+    </script>
+
+    <!-- Chatbot Script -->
+    <script>
+        let conversationHistory = []; // Holds the conversation history in memory
+
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            displayMessage('You', userInput);
+            document.getElementById('user-input').value = '';
+
+            // Store user message in conversation history
+            conversationHistory.push({ sender: 'You', message: userInput });
+
+            const response = await getResponse(userInput);
+            displayMessage('Bot', response);
+
+            // Store bot response in conversation history
+            conversationHistory.push({ sender: 'Bot', message: response });
+
+            // Save the conversation to Firebase
+            saveConversationToFirebase();
+        }
+
+        function displayMessage(sender, message) {
+            const chatbox = document.getElementById('chatbox');
+            const messageElement = document.createElement('p');
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        async function getResponse(prompt) {
+            try {
+                const response = await fetch('/.netlify/functions/fetch-openai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ prompt: formatPromptWithHistory(prompt) })
+                });
+
+                const data = await response.json();
+
+                if (data.message) {
+                    return data.message;
+                } else {
+                    console.error("Unexpected response:", data);
+                    return "Sorry, I couldn't generate a response. Please try again.";
+                }
+            } catch (error) {
+                console.error("Error fetching response:", error);
+                return "There was an error processing your request. Please check the console for more details.";
+            }
+        }
+
+        function formatPromptWithHistory(userInput) {
+            // Create a prompt that includes the conversation history
+            const formattedHistory = conversationHistory.map(entry => `${entry.sender}: ${entry.message}`).join('\n');
+            return `${formattedHistory}\nYou: ${userInput}`;
+        }
+
+        function saveConversationToFirebase() {
+            const conversationRef = db.ref('conversations');
+            const newConversationRef = conversationRef.push();
+            newConversationRef.set(conversationHistory);
+        }
+
+        function loadConversationFromFirebase() {
+            const conversationRef = db.ref('conversations');
+            conversationRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    // Populate conversation history in memory
+                    conversationHistory = Object.values(data).flat();
+
+                    // Display the conversation in the chatbox
+                    conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
+                }
+            });
+        }
+
+        // Load the conversation history when the page loads
+        loadConversationFromFirebase();
+    </script>
 </body>
 </html>
