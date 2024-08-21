@@ -25,9 +25,9 @@
         </div>
     </div>
 
-    <!-- Include Firebase (Non-Module) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Include Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
 
     <!-- Configuration -->
     <script>
@@ -35,7 +35,6 @@
         var firebaseConfig = {
             apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
             authDomain: "agentassist-72f8e.firebaseapp.com",
-            databaseURL: "https://agentassist-72f8e-default-rtdb.firebaseio.com",
             projectId: "agentassist-72f8e",
             storageBucket: "agentassist-72f8e.appspot.com",
             messagingSenderId: "353344108954",
@@ -44,7 +43,7 @@
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
+        var db = firebase.firestore();
     </script>
 
     <!-- Chatbot Script -->
@@ -74,8 +73,8 @@
             // Store bot response in conversation history
             conversationHistory.push({ sender: 'Bot', message: response });
 
-            // Save the conversation to Firebase
-            saveConversationToFirebase();
+            // Save the conversation to Firestore
+            saveConversationToFirestore();
         }
 
         function displayMessage(sender, message) {
@@ -116,28 +115,33 @@
             return `${formattedHistory}\nYou: ${userInput}`;
         }
 
-        function saveConversationToFirebase() {
-            const conversationRef = db.ref('conversations');
-            const newConversationRef = conversationRef.push();
-            newConversationRef.set(conversationHistory);
+        function saveConversationToFirestore() {
+            const conversationRef = db.collection('conversations').doc(); // Create a new document
+            conversationRef.set({
+                conversation: conversationHistory,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
 
-        function loadConversationFromFirebase() {
-            const conversationRef = db.ref('conversations');
-            conversationRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    // Populate conversation history in memory
-                    conversationHistory = Object.values(data).flat();
+        function loadConversationFromFirestore() {
+            db.collection('conversations').orderBy('timestamp', 'asc').get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.conversation) {
+                        // Populate conversation history in memory
+                        conversationHistory = data.conversation;
 
-                    // Display the conversation in the chatbox
-                    conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
-                }
+                        // Display the conversation in the chatbox
+                        conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
+                    }
+                });
+            }).catch((error) => {
+                console.error("Error loading conversation:", error);
             });
         }
 
         // Load the conversation history when the page loads
-        loadConversationFromFirebase();
+        loadConversationFromFirestore();
     </script>
 </body>
 
