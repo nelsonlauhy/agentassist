@@ -44,6 +44,7 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         var db = firebase.firestore();
+        let conversationDocId = null; // Store the document ID of the ongoing conversation
     </script>
 
     <!-- Chatbot Script -->
@@ -116,21 +117,35 @@
         }
 
         function saveConversationToFirestore() {
-            db.collection('conversations').add({
-                conversation: conversationHistory,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).catch((error) => {
-                console.error("Error saving conversation:", error);
-            });
+            if (conversationDocId) {
+                // If a document already exists, update it
+                db.collection('conversations').doc(conversationDocId).update({
+                    conversation: conversationHistory,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch((error) => {
+                    console.error("Error updating conversation:", error);
+                });
+            } else {
+                // Create a new document for this chat session
+                db.collection('conversations').add({
+                    conversation: conversationHistory,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then((docRef) => {
+                    conversationDocId = docRef.id; // Store the document ID for future updates
+                }).catch((error) => {
+                    console.error("Error saving conversation:", error);
+                });
+            }
         }
 
         function loadConversationFromFirestore() {
-            db.collection('conversations').orderBy('timestamp', 'asc').get().then((querySnapshot) => {
+            // Optional: Load the latest conversation (if needed)
+            db.collection('conversations').orderBy('timestamp', 'desc').limit(1).get().then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     if (data.conversation) {
-                        // Populate conversation history in memory
-                        conversationHistory = data.conversation;
+                        conversationDocId = doc.id; // Store the document ID for future updates
+                        conversationHistory = data.conversation; // Populate conversation history in memory
 
                         // Display the conversation in the chatbox
                         conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
@@ -141,7 +156,7 @@
             });
         }
 
-        // Load the conversation history when the page loads
+        // Load the latest conversation history when the page loads
         loadConversationFromFirestore();
     </script>
 </body>
