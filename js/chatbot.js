@@ -40,41 +40,46 @@ async function getResponse(prompt) {
     // Convert user input to lowercase for case-insensitive comparison
     const userInputLower = prompt.toLowerCase();
 
-    // Check for specific keywords related to "reach" for custom response
-    if (userInputLower.includes('reach')) {
-        return "It seems like you are trying to convey a message or ask a question. Could you please provide more context so I can better understand and assist you?";
-    }
+    // Define routing categories
+    const contactKeywords = ['contact', 'reach', 'email'];
+    const supportKeywords = ['help', 'issue', 'support', 'troubleshoot'];
+    const generalKeywords = ['information', 'inquiry', 'details'];
 
-    // General keyword detection for contact-related queries
-    const contactKeywords = ['contact', 'email', 'reach out'];
+    // Intent Classification and Routing
     if (contactKeywords.some(keyword => userInputLower.includes(keyword))) {
-        return "internal resource routing";
-    }
-
-    try {
+        return routeToResource('contact');
+    } else if (supportKeywords.some(keyword => userInputLower.includes(keyword))) {
+        return routeToResource('support');
+    } else if (generalKeywords.some(keyword => userInputLower.includes(keyword))) {
+        return routeToResource('general');
+    } else {
+        // If the query doesn't match any predefined intent, fallback to AI-generated response
         const response = await fetch('/.netlify/functions/fetch-openai', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ prompt: formatPromptWithHistory(prompt) })
+            body: JSON.stringify({ prompt })
         });
 
         const data = await response.json();
-
-        if (data.message) {
-            return data.message;
-        } else {
-            console.error("Unexpected response:", data);
-            return "Sorry, I couldn't generate a response. Please try again.";
-        }
-    } catch (error) {
-        console.error("Error fetching response:", error);
-        return "There was an error processing your request. Please check the console for more details.";
+        return data.message || "I'm not sure how to help with that. Could you clarify?";
     }
 }
 
-
+// Routing Function
+function routeToResource(intent) {
+    switch(intent) {
+        case 'contact':
+            return "It seems like you're looking for contact information. Could you please specify the name or organization you're trying to contact?";
+        case 'support':
+            return "It seems like you need support. Could you please describe the issue you're facing so I can assist further?";
+        case 'general':
+            return "It sounds like you have a general inquiry. How can I assist you with more details?";
+        default:
+            return "I'm not sure how to help with that. Could you clarify?";
+    }
+}
 
 function formatPromptWithHistory(userInput) {
     // Create a prompt that includes the conversation history
