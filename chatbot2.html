@@ -1,16 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/chatbot2.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="chat-container">
-        <div id="chatbox"></div>
-        <input type="text" id="user-input" placeholder="Ask me anything...">
-        <button onclick="sendMessage()">Send</button>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">Chatbot</h5>
+                        <div id="chatbox" class="border p-3 mb-3" style="height: 300px; overflow-y: scroll;"></div>
+                        <textarea id="user-input" class="form-control" rows="3" placeholder="Ask me anything..."></textarea>
+                        <button class="btn btn-primary btn-block mt-3" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Include Firebase -->
@@ -39,8 +51,15 @@
     <script>
         let conversationHistory = []; // Holds the conversation history in memory
 
+        document.getElementById('user-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // Prevents the default newline behavior
+                sendMessage();
+            }
+        });
+
         async function sendMessage() {
-            const userInput = document.getElementById('user-input').value;
+            const userInput = document.getElementById('user-input').value.trim();
             if (!userInput) return;
 
             displayMessage('You', userInput);
@@ -121,4 +140,5 @@
         loadConversationFromFirebase();
     </script>
 </body>
+
 </html>
