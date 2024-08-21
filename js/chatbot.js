@@ -16,7 +16,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let conversationHistory = []; // Holds the conversation history in memory
-let contactDirectory = []; // Holds all contact information in an array
+let directoryData = []; // Holds all directory data in memory
 let conversationDocId = null; // Store the document ID of the ongoing conversation
 
 document.getElementById('user-input').addEventListener('keypress', function (e) {
@@ -25,6 +25,22 @@ document.getElementById('user-input').addEventListener('keypress', function (e) 
         sendMessage();
     }
 });
+
+// Load the directory data when the chatbot page loads
+window.onload = loadDirectoryData;
+
+// Function to load all directory data from Firestore
+async function loadDirectoryData() {
+    try {
+        const directoryRef = collection(db, 'directory');
+        const querySnapshot = await getDocs(directoryRef);
+
+        directoryData = querySnapshot.docs.map(doc => doc.data());
+        console.log('Directory data loaded:', directoryData);
+    } catch (error) {
+        console.error('Error loading directory data:', error);
+    }
+}
 
 async function sendMessage() {
     const userInput = document.getElementById('user-input').value.trim();
@@ -40,8 +56,8 @@ async function sendMessage() {
 
     // Check if the input is related to contact information
     if (isContactQuery(userInput)) {
-        console.log("Contact query detected: Searching Firestore...");
-        const contactInfo = await searchContactInArray(userInput);
+        console.log("Contact query detected: Searching directory data...");
+        const contactInfo = searchContactInArray(userInput);
         if (contactInfo) {
             console.log("Contact information found and displayed:", contactInfo);
             displayMessage('Bot', contactInfo);
@@ -83,49 +99,35 @@ function isContactQuery(userInput) {
     return false;
 }
 
-async function loadDirectoryIntoArray() {
-    try {
-        const directoryRef = collection(db, 'directory');
-        const querySnapshot = await getDocs(directoryRef);
-
-        querySnapshot.forEach((doc) => {
-            contactDirectory.push(doc.data());
-        });
-
-        console.log("Loaded contact directory into array:", contactDirectory);
-    } catch (error) {
-        console.error("Error loading contact directory:", error);
-    }
-}
-
-async function searchContactInArray(userInput) {
-    const nameKeywords = extractNameFromQuery(userInput);
-    if (!nameKeywords) {
+function searchContactInArray(userInput) {
+    const searchTerm = extractNameFromQuery(userInput).toLowerCase();
+    if (!searchTerm) {
         console.log("Name extraction failed.");
         return null;
     }
-    console.log("Searching for contact using extracted name:", nameKeywords);
+    console.log("Searching for contact using extracted name:", searchTerm);
 
-    // Perform the search within the contactDirectory array
-    const foundContact = contactDirectory.find(contact =>
-        contact.displayname.toLowerCase().includes(nameKeywords.toLowerCase())
+    // Filter the directory data based on the search term
+    const filteredResults = directoryData.filter(contact =>
+        contact.displayname.toLowerCase().includes(searchTerm)
     );
 
-    if (foundContact) {
-        console.log("Contact found in array:", foundContact);
+    if (filteredResults.length > 0) {
+        const data = filteredResults[0]; // Assuming we return the first matched result
+        console.log("Contact found in array:", data);
 
         // Format the response message to include all relevant fields
         return `
-Name: ${foundContact.displayname}
-Branch: ${foundContact.branch}
-Title: ${foundContact.title}
-Email: ${foundContact.email}
-Direct Tel: ${foundContact.directTel}
-Personal Tel: ${foundContact.personalTel}
-Ext: ${foundContact.ext}
+Name: ${data.displayname}
+Branch: ${data.branch}
+Title: ${data.title}
+Email: ${data.email}
+Direct Tel: ${data.directTel}
+Personal Tel: ${data.personalTel}
+Ext: ${data.ext}
 `;
     } else {
-        console.log("No contact found in array for name:", nameKeywords);
+        console.log("No contact found in array for name:", searchTerm);
         return null;
     }
 }
@@ -142,7 +144,7 @@ function extractNameFromQuery(userInput) {
         return extractedName;
     }
     console.log("No name extracted from query.");
-    return null;
+    return "";
 }
 
 function displayMessage(sender, message) {
@@ -228,6 +230,3 @@ function loadConversationFromFirestore() {
 
 // Load the latest conversation history when the page loads
 loadConversationFromFirestore();
-
-// Load the entire directory into an array for later searching
-loadDirectoryIntoArray();

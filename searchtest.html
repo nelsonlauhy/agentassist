@@ -31,8 +31,28 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        async function searchDirectory() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
+        // Array to store all directory data
+        let directoryData = [];
+
+        // Function to load all directory data from Firestore
+        async function loadDirectoryData() {
+            try {
+                const directoryRef = db.collection('directory');
+                const querySnapshot = await directoryRef.get();
+                
+                directoryData = querySnapshot.docs.map(doc => doc.data());
+                console.log('Directory data loaded:', directoryData);
+            } catch (error) {
+                console.error('Error loading directory data:', error);
+            }
+        }
+
+        // Call loadDirectoryData when the page loads
+        window.onload = loadDirectoryData;
+
+        // Function to search and display results
+        function searchDirectory() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
             if (!searchTerm) {
                 alert('Please enter a name to search.');
                 return;
@@ -41,37 +61,29 @@
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '<p>Searching...</p>';
 
-            try {
-                const directoryRef = db.collection('directory');
-                const q = directoryRef
-                    .where('displayname', '>=', searchTerm)
-                    .where('displayname', '<=', searchTerm + '\uf8ff');
+            // Filter the directory data based on the search term
+            const filteredResults = directoryData.filter(item =>
+                item.displayname.toLowerCase().includes(searchTerm)
+            );
 
-                const querySnapshot = await q.get();  // Perform the query
-
-                if (querySnapshot.empty) {
-                    resultsDiv.innerHTML = '<p>No results found.</p>';
-                } else {
-                    let resultsHTML = '<h3>Results:</h3>';
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        resultsHTML += `
-                            <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
-                                <p><strong>Name:</strong> ${data.displayname}</p>
-                                <p><strong>Branch:</strong> ${data.branch}</p>
-                                <p><strong>Title:</strong> ${data.title}</p>
-                                <p><strong>Email:</strong> ${data.email}</p>
-                                <p><strong>Direct Tel:</strong> ${data.directTel}</p>
-                                <p><strong>Personal Tel:</strong> ${data.personalTel}</p>
-                                <p><strong>Ext:</strong> ${data.ext}</p>
-                            </div>
-                        `;
-                    });
-                    resultsDiv.innerHTML = resultsHTML;
-                }
-            } catch (error) {
-                console.error('Error searching directory:', error);
-                resultsDiv.innerHTML = `<p>Error searching directory: ${error.message}</p>`;
+            if (filteredResults.length === 0) {
+                resultsDiv.innerHTML = '<p>No results found.</p>';
+            } else {
+                let resultsHTML = '<h3>Results:</h3>';
+                filteredResults.forEach(data => {
+                    resultsHTML += `
+                        <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
+                            <p><strong>Name:</strong> ${data.displayname}</p>
+                            <p><strong>Branch:</strong> ${data.branch}</p>
+                            <p><strong>Title:</strong> ${data.title}</p>
+                            <p><strong>Email:</strong> ${data.email}</p>
+                            <p><strong>Direct Tel:</strong> ${data.directTel}</p>
+                            <p><strong>Personal Tel:</strong> ${data.personalTel}</p>
+                            <p><strong>Ext:</strong> ${data.ext}</p>
+                        </div>
+                    `;
+                });
+                resultsDiv.innerHTML = resultsHTML;
             }
         }
     </script>
