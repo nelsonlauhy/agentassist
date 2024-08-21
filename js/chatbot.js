@@ -29,6 +29,8 @@ async function sendMessage() {
     const userInput = document.getElementById('user-input').value.trim();
     if (!userInput) return;
 
+    console.log("User input received:", userInput);
+    
     displayMessage('You', userInput);
     document.getElementById('user-input').value = '';
 
@@ -40,12 +42,14 @@ async function sendMessage() {
         console.log("Contact query detected: Searching Firestore...");
         const contactInfo = await searchContactInFirestore(userInput);
         if (contactInfo) {
+            console.log("Contact information found and displayed:", contactInfo);
             displayMessage('Bot', contactInfo);
             conversationHistory.push({ sender: 'Bot', message: contactInfo });
             saveConversationToFirestore();
             return; // Stop further processing
         } else {
             const errorMessage = "Sorry, I couldn't find any contact information related to that name.";
+            console.log("No contact information found.");
             displayMessage('Bot', errorMessage);
             conversationHistory.push({ sender: 'Bot', message: errorMessage });
             saveConversationToFirestore();
@@ -70,11 +74,11 @@ function isContactQuery(userInput) {
     const contactKeywords = ["contact", "phone", "email", "number", "reach", "information"];
     const containsContactKeyword = contactKeywords.some(keyword => userInput.toLowerCase().includes(keyword));
 
-    // Only proceed if a contact keyword is present
     if (containsContactKeyword) {
-        console.log("Potential contact query detected:", userInput);
+        console.log("Contact-related keywords detected:", userInput);
         return true;
     }
+    console.log("No contact-related keywords found:", userInput);
     return false;
 }
 
@@ -84,7 +88,7 @@ async function searchContactInFirestore(userInput) {
         console.log("Name extraction failed.");
         return null;
     }
-    console.log("Searching for contact:", nameKeywords);
+    console.log("Searching for contact using extracted name:", nameKeywords);
 
     try {
         const directoryRef = collection(db, 'directory');
@@ -94,7 +98,7 @@ async function searchContactInFirestore(userInput) {
         if (!querySnapshot.empty) {
             const doc = querySnapshot.docs[0]; // Get the first matched document
             const data = doc.data();
-            console.log("Contact found:", data);
+            console.log("Contact found in Firestore:", data);
 
             // Format the response message to include all relevant fields
             return `
@@ -107,7 +111,7 @@ Personal Tel: ${data.personalTel}
 Ext: ${data.ext}
 `;
         } else {
-            console.log("No contact found for:", nameKeywords);
+            console.log("No contact found for name:", nameKeywords);
             return null;
         }
     } catch (error) {
@@ -154,11 +158,11 @@ async function getResponse(prompt) {
         if (data.message) {
             return data.message;
         } else {
-            console.error("Unexpected response:", data);
+            console.error("Unexpected response from OpenAI:", data);
             return "Sorry, I couldn't generate a response. Please try again.";
         }
     } catch (error) {
-        console.error("Error fetching response:", error);
+        console.error("Error fetching response from OpenAI:", error);
         return "There was an error processing your request. Please check the console for more details.";
     }
 }
@@ -177,7 +181,7 @@ function saveConversationToFirestore() {
             conversation: conversationHistory,
             timestamp: serverTimestamp()
         }).catch((error) => {
-            console.error("Error updating conversation:", error);
+            console.error("Error updating conversation in Firestore:", error);
         });
     } else {
         // Create a new document for this chat session
@@ -188,7 +192,7 @@ function saveConversationToFirestore() {
         }).then(() => {
             conversationDocId = conversationRef.id; // Store the document ID for future updates
         }).catch((error) => {
-            console.error("Error saving conversation:", error);
+            console.error("Error saving conversation to Firestore:", error);
         });
     }
 }
@@ -208,7 +212,7 @@ function loadConversationFromFirestore() {
             }
         });
     }).catch((error) => {
-        console.error("Error loading conversation:", error);
+        console.error("Error loading conversation from Firestore:", error);
     });
 }
 
