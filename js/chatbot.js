@@ -41,6 +41,10 @@ async function getResponse(prompt) {
     const contactKeywords = ['contact', 'reach', 'email', 'reach out'];
     const userInputLower = prompt.toLowerCase();
 
+    if (userInputLower.includes('reach')) {
+        return "It seems like you are trying to convey a message or ask a question. Could you please provide more context so I can better understand and assist you?";
+    }
+
     if (contactKeywords.some(keyword => userInputLower.includes(keyword))) {
         return "internal resource routing";
     }
@@ -67,6 +71,7 @@ async function getResponse(prompt) {
         return "There was an error processing your request. Please check the console for more details.";
     }
 }
+
 
 function formatPromptWithHistory(userInput) {
     // Create a prompt that includes the conversation history
