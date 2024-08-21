@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Search</title>
+    <!-- Load Firebase and Firestore SDKs (version 8.x) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <div>
+        <h1>Search Directory</h1>
+        <input type="text" id="searchInput" placeholder="Enter name to search...">
+        <button onclick="searchDirectory()">Search</button>
+    </div>
+    <div id="results" style="margin-top: 20px;"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
+            authDomain: "agentassist-72f8e.firebaseapp.com",
+            projectId: "agentassist-72f8e",
+            storageBucket: "agentassist-72f8e.appspot.com",
+            messagingSenderId: "353344108954",
+            appId: "1:353344108954:web:ee89b147ca641e63b5e223"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function searchDirectory() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) {
+                alert('Please enter a name to search.');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Searching...</p>';
+
+            try {
+                const directoryRef = db.collection('directory');
+                const q = directoryRef
+                    .where('displayname', '>=', searchTerm)
+                    .where('displayname', '<=', searchTerm + '\uf8ff');
+
+                const querySnapshot = await q.get();  // Perform the query
+
+                if (querySnapshot.empty) {
+                    resultsDiv.innerHTML = '<p>No results found.</p>';
+                } else {
+                    let resultsHTML = '<h3>Results:</h3>';
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        resultsHTML += `
+                            <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
+                                <p><strong>Name:</strong> ${data.displayname}</p>
+                                <p><strong>Branch:</strong> ${data.branch}</p>
+                                <p><strong>Title:</strong> ${data.title}</p>
+                                <p><strong>Email:</strong> ${data.email}</p>
+                                <p><strong>Direct Tel:</strong> ${data.directTel}</p>
+                                <p><strong>Personal Tel:</strong> ${data.personalTel}</p>
+                                <p><strong>Ext:</strong> ${data.ext}</p>
+                            </div>
+                        `;
+                    });
+                    resultsDiv.innerHTML = resultsHTML;
+                }
+            } catch (error) {
+                console.error('Error searching directory:', error);
+                resultsDiv.innerHTML = `<p>Error searching directory: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
-import { getFirestore, collection, query, where, getDocs, setDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, setDoc, doc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -16,6 +16,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let conversationHistory = []; // Holds the conversation history in memory
+let contactDirectory = []; // Holds all contact information in an array
 let conversationDocId = null; // Store the document ID of the ongoing conversation
 
 document.getElementById('user-input').addEventListener('keypress', function (e) {
@@ -40,7 +41,7 @@ async function sendMessage() {
     // Check if the input is related to contact information
     if (isContactQuery(userInput)) {
         console.log("Contact query detected: Searching Firestore...");
-        const contactInfo = await searchContactInFirestore(userInput);
+        const contactInfo = await searchContactInArray(userInput);
         if (contactInfo) {
             console.log("Contact information found and displayed:", contactInfo);
             displayMessage('Bot', contactInfo);
@@ -82,7 +83,22 @@ function isContactQuery(userInput) {
     return false;
 }
 
-async function searchContactInFirestore(userInput) {
+async function loadDirectoryIntoArray() {
+    try {
+        const directoryRef = collection(db, 'directory');
+        const querySnapshot = await getDocs(directoryRef);
+
+        querySnapshot.forEach((doc) => {
+            contactDirectory.push(doc.data());
+        });
+
+        console.log("Loaded contact directory into array:", contactDirectory);
+    } catch (error) {
+        console.error("Error loading contact directory:", error);
+    }
+}
+
+async function searchContactInArray(userInput) {
     const nameKeywords = extractNameFromQuery(userInput);
     if (!nameKeywords) {
         console.log("Name extraction failed.");
@@ -90,32 +106,26 @@ async function searchContactInFirestore(userInput) {
     }
     console.log("Searching for contact using extracted name:", nameKeywords);
 
-    try {
-        const directoryRef = collection(db, 'directory');
-        const q = query(directoryRef, where('displayname', '>=', nameKeywords), where('displayname', '<=', nameKeywords + '\uf8ff'));
-        const querySnapshot = await getDocs(q);
+    // Perform the search within the contactDirectory array
+    const foundContact = contactDirectory.find(contact =>
+        contact.displayname.toLowerCase().includes(nameKeywords.toLowerCase())
+    );
 
-        if (!querySnapshot.empty) {
-            const doc = querySnapshot.docs[0]; // Get the first matched document
-            const data = doc.data();
-            console.log("Contact found in Firestore:", data);
+    if (foundContact) {
+        console.log("Contact found in array:", foundContact);
 
-            // Format the response message to include all relevant fields
-            return `
-Name: ${data.displayname}
-Branch: ${data.branch}
-Title: ${data.title}
-Email: ${data.email}
-Direct Tel: ${data.directTel}
-Personal Tel: ${data.personalTel}
-Ext: ${data.ext}
+        // Format the response message to include all relevant fields
+        return `
+Name: ${foundContact.displayname}
+Branch: ${foundContact.branch}
+Title: ${foundContact.title}
+Email: ${foundContact.email}
+Direct Tel: ${foundContact.directTel}
+Personal Tel: ${foundContact.personalTel}
+Ext: ${foundContact.ext}
 `;
-        } else {
-            console.log("No contact found for name:", nameKeywords);
-            return null;
-        }
-    } catch (error) {
-        console.error("Error searching for contact information:", error);
+    } else {
+        console.log("No contact found in array for name:", nameKeywords);
         return null;
     }
 }
@@ -218,3 +228,6 @@ function loadConversationFromFirestore() {
 
 // Load the latest conversation history when the page loads
 loadConversationFromFirestore();
+
+// Load the entire directory into an array for later searching
+loadDirectoryIntoArray();
