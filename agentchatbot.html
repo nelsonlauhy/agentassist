@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Chatbot</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Chatbot CSS -->
+    <link href="css/chatbot.css" rel="stylesheet">
+    <style>
+        /* Chatbot icon and container styles */
+        #chatIcon {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 60px;
+            font-size: 30px;
+            cursor: pointer;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        #chatContainer {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 500px;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            overflow: auto;
+            max-height: calc(100vh - 150px);
+            resize: both;
+        }
+
+        /* Custom top-left resize handle using an image */
+        #resizeHandle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            cursor: nwse-resize;
+            z-index: 1001;
+            background-image: url('images/resize-left.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transform: rotate(180deg); /* Rotates the image 180 degrees */
+            opacity: 0.7;
+        }
+
+        #chatHistory {
+            height: calc(100% - 160px);
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        #chatHistory p {
+            margin-bottom: 10px;
+        }
+
+        #userInput {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #sendBtn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Chatbot Icon -->
+    <div id="chatIcon">
+        💬
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chatContainer">
+        <!-- Custom Resize Handle -->
+        <div id="resizeHandle"></div>
+        <h5 class="text-center">Agent Chatbot</h5>
+        <div id="chatHistory">
+            <!-- Example messages -->
+            <p><b>Bot:</b> Hi! How can I assist you today?</p>
+        </div>
+        <input type="text" id="userInput" placeholder="Type your message here..." />
+        <button id="sendBtn" class="btn btn-primary">Send</button>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chatbot JavaScript -->
+    <script type="module" src="js/chatbot.js"></script>
+
+    <!-- Script to toggle chatbot visibility and handle resizing -->
+    <script>
+        document.getElementById("chatIcon").addEventListener("click", function () {
+            const chatContainer = document.getElementById("chatContainer");
+            if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+                chatContainer.style.display = "block";
+            } else {
+                chatContainer.style.display = "none";
+            }
+        });
+
+        // Handle resizing from the top-left corner
+        const resizeHandle = document.getElementById("resizeHandle");
+        const chatContainer = document.getElementById("chatContainer");
+
+        resizeHandle.addEventListener("mousedown", function (e) {
+            e.preventDefault();
+            document.addEventListener("mousemove", resize);
+            document.addEventListener("mouseup", stopResize);
+        });
+
+        function resize(e) {
+            const newWidth = chatContainer.offsetWidth - (e.clientX - chatContainer.getBoundingClientRect().left);
+            const newHeight = chatContainer.offsetHeight - (e.clientY - chatContainer.getBoundingClientRect().top);
+
+            if (newWidth > 250) { // Minimum width
+                chatContainer.style.width = `${newWidth}px`;
+            }
+            if (newHeight > 300) { // Minimum height
+                chatContainer.style.height = `${newHeight}px`;
+            }
+        }
+
+        function stopResize() {
+            document.removeEventListener("mousemove", resize);
+            document.removeEventListener("mouseup", stopResize);
+        }
+
+        // Ensure chatbot interaction logic works
+        document.getElementById("sendBtn").addEventListener("click", function() {
+            const userInput = document.getElementById("userInput").value;
+            const chatHistory = document.getElementById("chatHistory");
+
+            if (userInput.trim() !== "") {
+                const userMessage = document.createElement("p");
+                userMessage.innerHTML = `<b>User:</b> ${userInput}`;
+                chatHistory.appendChild(userMessage);
+
+                // Simulate bot response
+                const botMessage = document.createElement("p");
+                botMessage.innerHTML = `<b>Bot:</b> Processing your request...`;
+                chatHistory.appendChild(botMessage);
+
+                // Scroll to the latest message
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                // Clear input field
+                document.getElementById("userInput").value = "";
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
