@@ -37,14 +37,16 @@ function displayMessage(sender, message) {
 }
 
 async function getResponse(prompt) {
-    // Check for specific keywords in the user's input
-    const contactKeywords = ['contact', 'reach', 'email', 'reach out'];
+    // Convert user input to lowercase for case-insensitive comparison
     const userInputLower = prompt.toLowerCase();
 
+    // Check for specific keywords related to "reach" for custom response
     if (userInputLower.includes('reach')) {
         return "It seems like you are trying to convey a message or ask a question. Could you please provide more context so I can better understand and assist you?";
     }
 
+    // General keyword detection for contact-related queries
+    const contactKeywords = ['contact', 'email', 'reach out'];
     if (contactKeywords.some(keyword => userInputLower.includes(keyword))) {
         return "internal resource routing";
     }
@@ -71,6 +73,7 @@ async function getResponse(prompt) {
         return "There was an error processing your request. Please check the console for more details.";
     }
 }
+
 
 
 function formatPromptWithHistory(userInput) {
