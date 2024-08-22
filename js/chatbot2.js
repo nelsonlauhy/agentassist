@@ -1,3 +1,15 @@
+let conversationHistory = [];
+
+// Load existing conversation from localStorage or sessionStorage
+window.onload = function () {
+    const savedConversation = sessionStorage.getItem('chatbotConversation'); // You can use localStorage instead if desired
+    if (savedConversation) {
+        conversationHistory = JSON.parse(savedConversation);
+        conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
+    }
+    document.getElementById('aa-chatbot-window').style.display = 'none'; // Ensure the window is hidden by default
+};
+
 document.getElementById('aa-user-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault(); // Prevents the default newline behavior
@@ -15,11 +27,17 @@ async function sendMessage() {
     // Store user message in conversation history
     conversationHistory.push({ sender: 'You', message: userInput });
 
+    // Save updated conversation to sessionStorage or localStorage
+    sessionStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Use localStorage if needed
+
     const response = await getResponse(userInput);
     displayMessage('Bot', response);
 
     // Store bot response in conversation history
     conversationHistory.push({ sender: 'Bot', message: response });
+
+    // Save updated conversation to sessionStorage or localStorage
+    sessionStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Use localStorage if needed
 }
 
 function displayMessage(sender, message) {
@@ -59,5 +77,3 @@ function formatPromptWithHistory(userInput) {
     const formattedHistory = conversationHistory.map(entry => `${entry.sender}: ${entry.message}`).join('\n');
     return `${formattedHistory}\nYou: ${userInput}`;
 }
-
-let conversationHistory = []; // Holds the conversation history in memory
