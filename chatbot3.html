@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #chat-container {
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #chat-window {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user {
+            background: #e6f3ff;
+            text-align: right;
+        }
+        .bot {
+            background: #f0f0f0;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        #send-button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-window">
+            <!-- Messages will be appended here -->
+        </div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for handling chat functionality would go here
+        // This is a placeholder for where you'd implement the chat logic
+        document.getElementById('send-button').addEventListener('click', async function() {
+            const userInput = document.getElementById('user-input');
+            if (userInput.value.trim() !== '') {
+                addMessage('user', userInput.value);
+                
+                try {
+                    const response = await fetch('/.netlify/functions/chatbot-function', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: userInput.value }),
+                    });
+        
+                    const data = await response.json();
+                    if (response.ok) {
+                        addMessage('bot', data.response);
+                    } else {
+                        addMessage('bot', 'Error: ' + data.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    addMessage('bot', 'An error occurred. Please try again.');
+                }
+        
+                userInput.value = '';
+            }
+        });
+
+        function addMessage(sender, text) {
+            const chatWindow = document.getElementById('chat-window');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = text;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    </script>
+</body>
+</html>
