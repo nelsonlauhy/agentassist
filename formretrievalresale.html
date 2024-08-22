@@ -12,6 +12,8 @@
     <link href="css/styles.css" rel="stylesheet">
     <!-- Accordion Custom CSS -->
     <link href="css/custom-accordion-form.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/aa-chatbot.css" rel="stylesheet">
 </head>
 <body>
     <!-- Sidebar Placeholder -->
@@ -90,8 +92,25 @@
     </div>
 
     <!-- Chatbot Icon -->
-    <div class="chatbot-icon">
+    <div class="chatbot-icon" id="aa-chatbot-icon">
         <i class="bi bi-chat-dots-fill"></i>
+    </div>
+
+    <!-- Chatbot Window -->
+    <div id="aa-chatbot-window">
+        <div class="card">
+            <div class="card-header">
+                <img src="images/resize-left.svg" alt="Resize Handle" id="aa-resize-handle">
+                <h5 class="card-title mb-0">Chatbot</h5>
+            </div>
+            <div class="card-body">
+                <div id="aa-chatbox"></div>
+            </div>
+            <div class="input-group">
+                <textarea id="aa-user-input" class="form-control" rows="1" placeholder="Ask me anything..."></textarea>
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
     </div>
 
     <!-- Mobile Preview Modal -->
@@ -116,7 +135,7 @@
 
     <!-- Firebase SDK -->
     <script type="module" src="js/firebase-config2.js"></script>
-
+    <script src="js/chatbot2.js"></script>
     <script type="module">
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
         import { getFirestore, collection, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -357,6 +376,59 @@
                     iframeElement.style.pointerEvents = 'auto';
                 }
             });
+        }
+
+
+
+
+        // Toggle chatbot window visibility
+        const chatbotIcon = document.getElementById('aa-chatbot-icon');
+        const chatbotWindow = document.getElementById('aa-chatbot-window');
+        const resizeHandle = document.getElementById('aa-resize-handle');
+
+        // Ensure the chatbot window is hidden by default
+        window.onload = function () {
+            chatbotWindow.style.display = 'none';
+        };
+
+        chatbotIcon.addEventListener('click', function () {
+            if (chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '') {
+                chatbotWindow.style.display = 'block';
+            } else {
+                chatbotWindow.style.display = 'none';
+            }
+        });
+
+        // Resize functionality for the top-left handle
+        let isResizing = false;
+
+        resizeHandle.addEventListener('mousedown', function (e) {
+            isResizing = true;
+            document.body.style.cursor = 'nwse-resize';
+            document.addEventListener('mousemove', resizeChatbotWindow);
+            document.addEventListener('mouseup', stopResizing);
+        });
+
+        function resizeChatbotWindow(e) {
+            if (!isResizing) return;
+            // Calculate new dimensions
+            const newWidth = chatbotWindow.offsetWidth - (e.clientX - chatbotWindow.getBoundingClientRect().left);
+            const newHeight = chatbotWindow.offsetHeight - (e.clientY - chatbotWindow.getBoundingClientRect().top);
+
+            // Set the dimensions while maintaining the resizing from the top-left corner
+            chatbotWindow.style.width = `${newWidth}px`;
+            chatbotWindow.style.height = `${newHeight}px`;
+
+            // Ensure the window doesn't get too small
+            if (newWidth < 300) chatbotWindow.style.width = '300px';
+            if (newHeight < 350) chatbotWindow.style.height = '350px';
+        }
+
+        function stopResizing() {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+            document.removeEventListener('mousemove', resizeChatbotWindow);
+            document.removeEventListener('mouseup', stopResizing);
         }
     </script>
 </body>
