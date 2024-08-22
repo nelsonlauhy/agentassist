@@ -25,28 +25,6 @@
         </div>
     </div>
 
-    <!-- Include Firebase v8 (Non-Modular) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-
-    <!-- Configuration -->
-    <script>
-        // Firebase configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyCKTtDro4r4iQ4TwbblBGulGLDTHvp5Pu8",
-            authDomain: "agentassist-72f8e.firebaseapp.com",
-            projectId: "agentassist-72f8e",
-            storageBucket: "agentassist-72f8e.appspot.com",
-            messagingSenderId: "353344108954",
-            appId: "1:353344108954:web:ee89b147ca641e63b5e223"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
-        let conversationDocId = null; // Store the document ID of the ongoing conversation
-    </script>
-
     <!-- Chatbot Script -->
     <script>
         let conversationHistory = []; // Holds the conversation history in memory
@@ -73,15 +51,12 @@
 
             // Store bot response in conversation history
             conversationHistory.push({ sender: 'Bot', message: response });
-
-            // Save the conversation to Firestore
-            saveConversationToFirestore();
         }
 
         function displayMessage(sender, message) {
             const chatbox = document.getElementById('chatbox');
             const messageElement = document.createElement('p');
-            messageElement.innerHTML = <strong>${sender}:</strong> ${message};
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
             chatbox.appendChild(messageElement);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
@@ -112,52 +87,9 @@
 
         function formatPromptWithHistory(userInput) {
             // Create a prompt that includes the conversation history
-            const formattedHistory = conversationHistory.map(entry => ${entry.sender}: ${entry.message}).join('\n');
-            return ${formattedHistory}\nYou: ${userInput};
+            const formattedHistory = conversationHistory.map(entry => `${entry.sender}: ${entry.message}`).join('\n');
+            return `${formattedHistory}\nYou: ${userInput}`;
         }
-
-        function saveConversationToFirestore() {
-            if (conversationDocId) {
-                // If a document already exists, update it
-                db.collection('conversations').doc(conversationDocId).update({
-                    conversation: conversationHistory,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).catch((error) => {
-                    console.error("Error updating conversation:", error);
-                });
-            } else {
-                // Create a new document for this chat session
-                db.collection('conversations').add({
-                    conversation: conversationHistory,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                }).then((docRef) => {
-                    conversationDocId = docRef.id; // Store the document ID for future updates
-                }).catch((error) => {
-                    console.error("Error saving conversation:", error);
-                });
-            }
-        }
-
-        function loadConversationFromFirestore() {
-            // Optional: Load the latest conversation (if needed)
-            db.collection('conversations').orderBy('timestamp', 'desc').limit(1).get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    if (data.conversation) {
-                        conversationDocId = doc.id; // Store the document ID for future updates
-                        conversationHistory = data.conversation; // Populate conversation history in memory
-
-                        // Display the conversation in the chatbox
-                        conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
-                    }
-                });
-            }).catch((error) => {
-                console.error("Error loading conversation:", error);
-            });
-        }
-
-        // Load the latest conversation history when the page loads
-        loadConversationFromFirestore();
     </script>
 </body>
 

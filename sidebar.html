@@ -1,19 +1,21 @@
 <!-- sidebar.html -->
 <div class="sidebar" id="sidebarMenu">
-    <div class="center">
-        <img src="images/LivingRealty40.png" alt="Company Logo" class="logo mb-3">
+    <div style="display: flex; justify-content: flex-start; align-items: flex-start; padding: 50px 0 0 20px;">
+        <img src="images/LivingRealty40.png" alt="Company Logo" style="display: block; margin-bottom: 20px; width: 120px; height: auto;">
     </div>
-    <div class="profile text-center">
+    <div class="profile" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
         <!-- User's Profile Photo or Default Icon -->
-        <div id="profileIconContainer" class="d-flex justify-content-center mb-3">
-            <i id="sidebarDefaultIcon" class="bi bi-person-circle" style="font-size: 50px; display: block;"></i>
-            <img id="sidebarProfilePhoto" src="" alt="Profile Photo" class="img-thumbnail" style="width: 50px; height: 50px; display: none;">
+        <div id="profileIconContainer" class="d-flex align-items-center mb-3" style="display: flex; align-items: center; justify-content: flex-start; width: 100%;">
+            <img id="sidebarProfilePhoto" src="images/profile.jpg" alt="Profile Photo" class="img-thumbnail" style="width: 50px; height: 50px; display: block; margin-right: 10px;">
+            <div>
+                <!-- User's Name -->
+                <h5 id="userName" class="mb-1" style="margin: 0; font-weight:bold; font-size:medium">Nelson Lau</h5>
+                <!-- User's Branch -->
+                <p id="userBranch" style="font-size:x-small; margin: 0;">Woodbine</p>
+            </div>
         </div>
-        <!-- User's Name -->
-        <h5 id="userName">Loading...</h5>
-        <!-- User's Branch -->
-        <p id="userBranch" style="font-size: smaller; margin: 0;">Loading branch...</p>
     </div>
+    
     <hr>
     <ul class="nav nav-pills flex-column mb-auto"><br>
         <li class="nav-item">
