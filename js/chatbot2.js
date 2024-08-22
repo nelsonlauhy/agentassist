@@ -1,8 +1,8 @@
 let conversationHistory = [];
 
-// Load existing conversation from localStorage or sessionStorage
+// Load existing conversation from localStorage
 window.onload = function () {
-    const savedConversation = sessionStorage.getItem('chatbotConversation'); // You can use localStorage instead if desired
+    const savedConversation = localStorage.getItem('chatbotConversation'); // Changed to localStorage
     if (savedConversation) {
         conversationHistory = JSON.parse(savedConversation);
         conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
@@ -27,8 +27,8 @@ async function sendMessage() {
     // Store user message in conversation history
     conversationHistory.push({ sender: 'You', message: userInput });
 
-    // Save updated conversation to sessionStorage or localStorage
-    sessionStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Use localStorage if needed
+    // Save updated conversation to localStorage
+    localStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Changed to localStorage
 
     const response = await getResponse(userInput);
     displayMessage('Bot', response);
@@ -36,8 +36,8 @@ async function sendMessage() {
     // Store bot response in conversation history
     conversationHistory.push({ sender: 'Bot', message: response });
 
-    // Save updated conversation to sessionStorage or localStorage
-    sessionStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Use localStorage if needed
+    // Save updated conversation to localStorage
+    localStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Changed to localStorage
 }
 
 function displayMessage(sender, message) {
