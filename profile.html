@@ -1,5 +1,6 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,11 +11,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="css/styles.css" rel="stylesheet">
-
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/aa-chatbot.css" rel="stylesheet">
-
 </head>
+
 <body>
 
 <!-- Sidebar Placeholder -->
@@ -49,45 +48,42 @@
         <i class="bi bi-list"></i>
     </button>
     <div class="container-fluid">
-        <div class="container-fluid">
-            <div class="dashboard-header d-flex align-items-end flex-wrap"> <!-- Flexbox container with flex-wrap -->
-                <h2 class="my-4 mb-0">Profile</h2>
-                <h6 class="text-muted ms-3 mb-1">View and update your profile information</h6>
-            </div><br>
+        <div class="dashboard-header d-flex align-items-end flex-wrap">
+            <h2 class="my-4 mb-0">Profile</h2>
+            <h6 class="text-muted ms-3 mb-1">View and update your profile information</h6>
+        </div><br>
 
-            <!-- Profile Form -->
-            <div class="row justify-content-start">
-                <div class="col-md-6">
-                    <!-- Profile Photo Display -->
-                    <div class="mb-3 text-left">
-                        <img id="profilePhoto" src="images/default-avatar.png" alt="Profile Photo" class="img-thumbnail" style="width: 50px; height: 50px;">
-                        <input type="file" id="photoUpload" class="form-control mt-2" accept="image/*">
-                        <button id="uploadPhotoButton" class="btn btn-primary mt-3">Upload Photo</button>
-                    </div>
-
-                    <form id="profileForm" class="mt-4">
-                        <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" class="form-control" id="firstName" disabled>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" class="form-control" id="lastName" disabled>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="branch">Branch</label>
-                            <input type="text" class="form-control" id="branch" disabled>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="email">Email</label>
-                            <input type="email" class="form-control" id="email" disabled>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="phoneNumber">Phone Number</label>
-                            <input type="phoneNumber" class="form-control" id="phoneNumber" disabled>
-                        </div>
-                    </form>
+        <!-- Profile Form -->
+        <div class="row justify-content-start">
+            <div class="col-md-6">
+                <div class="mb-3 text-left">
+                    <img id="profilePhoto" src="images/default-avatar.png" alt="Profile Photo" class="img-thumbnail" style="width: 50px; height: 50px;">
+                    <input type="file" id="photoUpload" class="form-control mt-2" accept="image/*">
+                    <button id="uploadPhotoButton" class="btn btn-primary mt-3">Upload Photo</button>
                 </div>
+
+                <form id="profileForm" class="mt-4">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" class="form-control" id="firstName" disabled>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" class="form-control" id="lastName" disabled>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="branch">Branch</label>
+                        <input type="text" class="form-control" id="branch" disabled>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" disabled>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="phoneNumber" class="form-control" id="phoneNumber" disabled>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -108,25 +104,21 @@
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
-            // Fetch the user's data from Firestore
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
 
-                // Populate the form with user data
                 document.getElementById('firstName').value = userData.firstName;
                 document.getElementById('lastName').value = userData.lastName;
                 document.getElementById('branch').value = userData.branch;
                 document.getElementById('email').value = userData.email;
                 document.getElementById('phoneNumber').value = userData.phoneNumber;
 
-                // Display the profile photo or show the default icon if no photo exists
                 if (userData.photoURL) {
                     document.getElementById('profilePhoto').src = userData.photoURL;
                 }
             }
         } else {
-            // Redirect to login if the user is not authenticated
             window.location.href = "login.html";
         }
     });
@@ -140,12 +132,8 @@
             await uploadBytes(storageRef, resizedBlob);
             const photoURL = await getDownloadURL(storageRef);
 
-            // Update the photo URL in Firestore
-            await updateDoc(doc(db, "users", user.uid), {
-                photoURL: photoURL
-            });
+            await updateDoc(doc(db, "users", user.uid), { photoURL: photoURL });
 
-            // Display the uploaded photo
             document.getElementById('profilePhoto').src = photoURL;
             alert('Profile photo updated successfully!');
         } else {
@@ -163,12 +151,10 @@
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
 
-                    // Resize the image
                     canvas.width = maxWidth;
                     canvas.height = maxHeight;
                     ctx.drawImage(img, 0, 0, maxWidth, maxHeight);
 
-                    // Convert canvas to Blob
                     canvas.toBlob(resolve, 'image/jpeg');
                 };
             };
@@ -178,8 +164,8 @@
 
     // Sidebar toggle script
     document.getElementById('toggleButton').addEventListener('click', function () {
-        var sidebar = document.getElementById('sidebarMenu');
-        var content = document.getElementById('mainContent');
+        const sidebar = document.getElementById('sidebarMenu');
+        const content = document.getElementById('mainContent');
         
         if (sidebar.classList.contains('sidebar-hidden')) {
             sidebar.classList.remove('sidebar-hidden');
@@ -193,25 +179,28 @@
     // Load the sidebar content
     $(function(){
         $("#sidebar-placeholder").load("sidebar.html", function() {
-            // Initialize any Bootstrap components if needed after loading sidebar
             $('[data-bs-toggle="collapse"]').collapse();
         });
     });
 
+    // Combined window.onload for all functionalities
+    window.onload = function () {
+        // Chatbot initialization
+        const chatbotWindow = document.getElementById('aa-chatbot-window');
+        chatbotWindow.style.display = 'none'; // Ensure the window is hidden by default
 
-
+        // Load existing conversation from localStorage
+        const savedConversation = localStorage.getItem('chatbotConversation');
+        if (savedConversation) {
+            conversationHistory = JSON.parse(savedConversation);
+            conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
+        }
+    };
 
     // Toggle chatbot window visibility
     const chatbotIcon = document.getElementById('aa-chatbot-icon');
-    const chatbotWindow = document.getElementById('aa-chatbot-window');
-    const resizeHandle = document.getElementById('aa-resize-handle');
-
-    // Ensure the chatbot window is hidden by default
-    window.onload = function () {
-        chatbotWindow.style.display = 'none';
-    };
-
     chatbotIcon.addEventListener('click', function () {
+        const chatbotWindow = document.getElementById('aa-chatbot-window');
         if (chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '') {
             chatbotWindow.style.display = 'block';
         } else {
@@ -220,6 +209,7 @@
     });
 
     // Resize functionality for the top-left handle
+    const resizeHandle = document.getElementById('aa-resize-handle');
     let isResizing = false;
 
     resizeHandle.addEventListener('mousedown', function (e) {
@@ -231,15 +221,13 @@
 
     function resizeChatbotWindow(e) {
         if (!isResizing) return;
-        // Calculate new dimensions
+        const chatbotWindow = document.getElementById('aa-chatbot-window');
         const newWidth = chatbotWindow.offsetWidth - (e.clientX - chatbotWindow.getBoundingClientRect().left);
         const newHeight = chatbotWindow.offsetHeight - (e.clientY - chatbotWindow.getBoundingClientRect().top);
 
-        // Set the dimensions while maintaining the resizing from the top-left corner
         chatbotWindow.style.width = `${newWidth}px`;
         chatbotWindow.style.height = `${newHeight}px`;
 
-        // Ensure the window doesn't get too small
         if (newWidth < 300) chatbotWindow.style.width = '300px';
         if (newHeight < 350) chatbotWindow.style.height = '350px';
     }
@@ -256,5 +244,5 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
 
+</html>
