@@ -1,6 +1,4 @@
-let conversationHistory = []; // Holds the conversation history in memory
-
-document.getElementById('user-input').addEventListener('keypress', function (e) {
+document.getElementById('aa-user-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault(); // Prevents the default newline behavior
         sendMessage();
@@ -8,11 +6,11 @@ document.getElementById('user-input').addEventListener('keypress', function (e) 
 });
 
 async function sendMessage() {
-    const userInput = document.getElementById('user-input').value.trim();
+    const userInput = document.getElementById('aa-user-input').value.trim();
     if (!userInput) return;
 
     displayMessage('You', userInput);
-    document.getElementById('user-input').value = '';
+    document.getElementById('aa-user-input').value = '';
 
     // Store user message in conversation history
     conversationHistory.push({ sender: 'You', message: userInput });
@@ -25,7 +23,7 @@ async function sendMessage() {
 }
 
 function displayMessage(sender, message) {
-    const chatbox = document.getElementById('chatbox');
+    const chatbox = document.getElementById('aa-chatbox');
     const messageElement = document.createElement('p');
     messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
     chatbox.appendChild(messageElement);
@@ -61,3 +59,5 @@ function formatPromptWithHistory(userInput) {
     const formattedHistory = conversationHistory.map(entry => `${entry.sender}: ${entry.message}`).join('\n');
     return `${formattedHistory}\nYou: ${userInput}`;
 }
+
+let conversationHistory = []; // Holds the conversation history in memory
