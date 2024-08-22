@@ -7,7 +7,6 @@
     <title>Chatbot</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/chatbot2.css" rel="stylesheet">
-    <script src="js/nlp.js"></script>
 </head>
 
 <body>
@@ -62,41 +61,27 @@
         async function sendMessage() {
             const userInput = document.getElementById('user-input').value.trim();
             if (!userInput) return;
-        
+
             displayMessage('You', userInput);
             document.getElementById('user-input').value = '';
-        
+
             // Store user message in conversation history
             conversationHistory.push({ sender: 'You', message: userInput });
-        
-            // Apply NLP analysis
-            const nlpResult = analyzeUserInput(userInput);
-        
-            let response;
-            if (nlpResult.intent === 'search_contact' && nlpResult.searchName) {
-                // Route to search the contact information
-                response = await searchContactInfo(nlpResult.searchName);
-            } else {
-                // Use the refined prompt for OpenAI
-                const openAiPrompt = preparePromptForOpenAI(nlpResult.refinedPrompt);
-                response = await getResponse(openAiPrompt);
-            }
-        
+
+            const response = await getResponse(userInput);
             displayMessage('Bot', response);
-        
+
             // Store bot response in conversation history
             conversationHistory.push({ sender: 'Bot', message: response });
-        
+
             // Save the conversation to Firestore
             saveConversationToFirestore();
         }
-        
-        
 
         function displayMessage(sender, message) {
             const chatbox = document.getElementById('chatbox');
             const messageElement = document.createElement('p');
-            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            messageElement.innerHTML = <strong>${sender}:</strong> ${message};
             chatbox.appendChild(messageElement);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
@@ -127,8 +112,8 @@
 
         function formatPromptWithHistory(userInput) {
             // Create a prompt that includes the conversation history
-            const formattedHistory = conversationHistory.map(entry => `${entry.sender}: ${entry.message}`).join('\n');
-            return `${formattedHistory}\nYou: ${userInput}`;
+            const formattedHistory = conversationHistory.map(entry => ${entry.sender}: ${entry.message}).join('\n');
+            return ${formattedHistory}\nYou: ${userInput};
         }
 
         function saveConversationToFirestore() {
@@ -174,7 +159,6 @@
         // Load the latest conversation history when the page loads
         loadConversationFromFirestore();
     </script>
-    <script src="js/chatbot.js"></script>
 </body>
 
 </html>

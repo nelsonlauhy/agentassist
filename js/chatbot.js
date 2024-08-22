@@ -1,13 +1,3 @@
-import { firebaseConfig } from './config.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js';
-import { getDatabase, ref, push, set, onValue } from 'https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js';
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let conversationHistory = []; // Holds the conversation history in memory
-
 async function sendMessage() {
     const userInput = document.getElementById('user-input').value;
     if (!userInput) return;
@@ -15,17 +5,8 @@ async function sendMessage() {
     displayMessage('You', userInput);
     document.getElementById('user-input').value = '';
 
-    // Store user message in conversation history
-    conversationHistory.push({ sender: 'You', message: userInput });
-
     const response = await getResponse(userInput);
     displayMessage('Bot', response);
-
-    // Store bot response in conversation history
-    conversationHistory.push({ sender: 'Bot', message: response });
-
-    // Save the conversation to Firebase
-    saveConversationToFirebase();
 }
 
 function displayMessage(sender, message) {
@@ -43,7 +24,7 @@ async function getResponse(prompt) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ prompt: formatPromptWithHistory(prompt) })
+            body: JSON.stringify({ prompt })
         });
 
         const data = await response.json();
@@ -59,33 +40,3 @@ async function getResponse(prompt) {
         return "There was an error processing your request. Please check the console for more details.";
     }
 }
-
-function formatPromptWithHistory(userInput) {
-    // Create a prompt that includes the conversation history
-    const formattedHistory = conversationHistory.map(entry => `${entry.sender}: ${entry.message}`).join('\n');
-    return `${formattedHistory}\nYou: ${userInput}`;
-}
-
-function saveConversationToFirebase() {
-    const conversationRef = ref(db, 'conversations');
-    const newConversationRef = push(conversationRef);
-    set(newConversationRef, conversationHistory);
-}
-
-function loadConversationFromFirebase() {
-    const conversationRef = ref(db, 'conversations');
-    onValue(conversationRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            // Populate conversation history in memory
-            conversationHistory = Object.values(data).flat();
-
-            // Display the conversation in the chatbox
-            conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
-        }
-    });
-}
-
-// Load the conversation history when the page loads
-loadConversationFromFirebase();
-
