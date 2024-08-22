@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,150 +24,151 @@
         }
     </style>
 </head>
+
 <body>
 
-<!-- Sidebar Placeholder -->
-<div id="sidebar-placeholder"></div>
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-placeholder"></div>
 
-<!-- Chatbot Window -->
-<div id="aa-chatbot-window">
-    <div class="card">
-        <div class="card-header">
-            <img src="images/resize-left.svg" alt="Resize Handle" id="aa-resize-handle">
-            <h5 class="card-title mb-0">Chatbot</h5>
-        </div>
-        <div class="card-body">
-            <div id="aa-chatbox"></div>
-        </div>
-        <div class="input-group">
-            <textarea id="aa-user-input" class="form-control" rows="1" placeholder="Ask me anything..."></textarea>
-            <button onclick="sendMessage()">Send</button>
+    <!-- Chatbot Window -->
+    <div id="aa-chatbot-window">
+        <div class="card">
+            <div class="card-header">
+                <img src="images/resize-left.svg" alt="Resize Handle" id="aa-resize-handle">
+                <h5 class="card-title mb-0">Chatbot</h5>
+            </div>
+            <div class="card-body">
+                <div id="aa-chatbox"></div>
+            </div>
+            <div class="input-group">
+                <textarea id="aa-user-input" class="form-control" rows="1" placeholder="Ask me anything..."></textarea>
+                <button onclick="sendMessage()">Send</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Main Content -->
-<div class="content" id="mainContent">
-    <!-- Toggle Button for Sidebar -->
-    <button class="toggle-btn" id="toggleButton">
-        <i class="bi bi-list"></i>
-    </button>
-    <div class="container-fluid">
+    <!-- Main Content -->
+    <div class="content" id="mainContent">
+        <!-- Toggle Button for Sidebar -->
+        <button class="toggle-btn" id="toggleButton">
+            <i class="bi bi-list"></i>
+        </button>
         <div class="container-fluid">
-            <div class="dashboard-header d-flex align-items-end flex-wrap">
-                <h2 class="my-4 mb-0">Training Files</h2>
-            </div><br>
-            
-            <!-- Accordion for Folders -->
-            <div class="accordion" id="trainingFilesAccordion">
-                <!-- Dynamic content will be inserted here -->
+            <div class="container-fluid">
+                <div class="dashboard-header d-flex align-items-end flex-wrap">
+                    <h2 class="my-4 mb-0">Training Files</h2>
+                </div><br>
+
+                <!-- Accordion for Folders -->
+                <div class="accordion" id="trainingFilesAccordion">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal for displaying files -->
-<div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="fileModalLabel">View File</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalBodyContent">
-                <!-- Content will be injected here -->
+    <!-- Modal for displaying files -->
+    <div class="modal fade" id="fileModal" tabindex="-1" aria-labelledby="fileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="fileModalLabel">View File</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBodyContent">
+                    <!-- Content will be injected here -->
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Chatbot Icon -->
-<div class="chatbot-icon" id="aa-chatbot-icon">
-    <i class="bi bi-chat-dots-fill"></i>
-</div>
+    <!-- Chatbot Icon -->
+    <div class="chatbot-icon" id="aa-chatbot-icon">
+        <i class="bi bi-chat-dots-fill"></i>
+    </div>
 
-<!-- Bootstrap JS and Popper.js -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Firebase SDK -->
-<script type="module" src="js/firebase-config2.js"></script>
-<script src="js/chatbot2.js"></script>
-<script type="module">
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-    import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+    <!-- Firebase SDK -->
+    <script type="module" src="js/firebase-config2.js"></script>
+    <script src="js/chatbot2.js"></script>
+    <script type="module">
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
-    const auth = getAuth();
-    const db = getFirestore();
-    const storage = getStorage();
+        const auth = getAuth();
+        const db = getFirestore();
+        const storage = getStorage();
 
-    // Check if the user is logged in and get their UID
-    onAuthStateChanged(auth, async (user) => {
-        if (user && user.emailVerified) {
-            // User is authenticated, continue loading the page data
-            fetchTrainingFiles();
-        } else {
-            // Redirect to login if not authenticated
-            window.location.href = "login.html";
-        }
-    });
-
-    $(function(){
-        $("#sidebar-placeholder").load("sidebar.html", function() {
-            $('[data-bs-toggle="collapse"]').collapse();
+        // Check if the user is logged in and get their UID
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.emailVerified) {
+                // User is authenticated, continue loading the page data
+                fetchTrainingFiles();
+            } else {
+                // Redirect to login if not authenticated
+                window.location.href = "login.html";
+            }
         });
-    });
 
-    // Sidebar toggle script
-    document.getElementById('toggleButton').addEventListener('click', function () {
-        var sidebar = document.getElementById('sidebarMenu');
-        var content = document.getElementById('mainContent');
-        
-        if (sidebar.classList.contains('sidebar-hidden')) {
-            sidebar.classList.remove('sidebar-hidden');
-            content.classList.remove('collapsed-sidebar');
-        } else {
-            sidebar.classList.add('sidebar-hidden');
-            content.classList.add('collapsed-sidebar');
-        }
-    });
-
-    // Fetch data from Firebase and build the accordion structure
-    async function fetchTrainingFiles() {
-        try {
-            const q = query(
-                collection(db, "trainingfiles"),
-                orderBy("folder"),
-                orderBy("filename")
-            );
-            const querySnapshot = await getDocs(q);
-
-            var accordion = document.getElementById("trainingFilesAccordion");
-            var dataByFolders = {};
-            
-            // Group data by folders
-            querySnapshot.forEach(doc => {
-                var data = doc.data();
-                if (!dataByFolders[data.folder]) {
-                    dataByFolders[data.folder] = [];
-                }
-                dataByFolders[data.folder].push({
-                    filename: data.filename,
-                    folder: data.folder
-                });
+        $(function () {
+            $("#sidebar-placeholder").load("sidebar.html", function () {
+                $('[data-bs-toggle="collapse"]').collapse();
             });
+        });
 
-            // Build the accordion structure
-            var index = 0;
-            for (const folder in dataByFolders) {
-                const collapseId = `collapse${index}`;
-                const itemId = `heading${index}`;
-                const isFirst = index === 0;
-                const collapseClass = isFirst ? 'collapse show' : 'collapse';
+        // Sidebar toggle script
+        document.getElementById('toggleButton').addEventListener('click', function () {
+            var sidebar = document.getElementById('sidebarMenu');
+            var content = document.getElementById('mainContent');
 
-                var newItem = `
+            if (sidebar.classList.contains('sidebar-hidden')) {
+                sidebar.classList.remove('sidebar-hidden');
+                content.classList.remove('collapsed-sidebar');
+            } else {
+                sidebar.classList.add('sidebar-hidden');
+                content.classList.add('collapsed-sidebar');
+            }
+        });
+
+        // Fetch data from Firebase and build the accordion structure
+        async function fetchTrainingFiles() {
+            try {
+                const q = query(
+                    collection(db, "trainingfiles"),
+                    orderBy("folder"),
+                    orderBy("filename")
+                );
+                const querySnapshot = await getDocs(q);
+
+                var accordion = document.getElementById("trainingFilesAccordion");
+                var dataByFolders = {};
+
+                // Group data by folders
+                querySnapshot.forEach(doc => {
+                    var data = doc.data();
+                    if (!dataByFolders[data.folder]) {
+                        dataByFolders[data.folder] = [];
+                    }
+                    dataByFolders[data.folder].push({
+                        filename: data.filename,
+                        folder: data.folder
+                    });
+                });
+
+                // Build the accordion structure
+                var index = 0;
+                for (const folder in dataByFolders) {
+                    const collapseId = `collapse${index}`;
+                    const itemId = `heading${index}`;
+                    const isFirst = index === 0;
+                    const collapseClass = isFirst ? 'collapse show' : 'collapse';
+
+                    var newItem = `
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="${itemId}">
                             <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${isFirst}" aria-controls="${collapseId}">
@@ -176,130 +178,133 @@
                         <div id="${collapseId}" class="accordion-collapse ${collapseClass}" aria-labelledby="${itemId}" data-bs-parent="#trainingFilesAccordion">
                             <div class="accordion-body">
                                 <ul class="list-unstyled">
-                `;
+                    `;
 
-                dataByFolders[folder].forEach(file => {
-                    newItem += `<li><a href="#" class="file-link" data-folder="${file.folder}" data-filename="${file.filename}">${file.filename}</a></li>`;
-                });
+                    dataByFolders[folder].forEach(file => {
+                        newItem += `<li><a href="#" class="file-link" data-folder="${file.folder}" data-filename="${file.filename}">${file.filename}</a></li>`;
+                    });
 
-                newItem += `
+                    newItem += `
                                 </ul>
                             </div>
                         </div>
                     </div>
                 `;
 
-                accordion.innerHTML += newItem;
-                index++;
+                    accordion.innerHTML += newItem;
+                    index++;
+                }
+            } catch (error) {
+                console.log("Error getting documents: ", error);
             }
-        } catch (error) {
-            console.log("Error getting documents: ", error);
         }
-    }
 
-    // Script to Handle File Link Click
-    document.addEventListener("click", function(e) {
-        if (e.target && e.target.classList.contains("file-link")) {
-            e.preventDefault();
-            var folder = e.target.getAttribute("data-folder");
-            var fileName = e.target.getAttribute("data-filename");
+        // Script to Handle File Link Click
+        document.addEventListener("click", function (e) {
+            if (e.target && e.target.classList.contains("file-link")) {
+                e.preventDefault();
+                var folder = e.target.getAttribute("data-folder");
+                var fileName = e.target.getAttribute("data-filename");
 
-            console.log("Folder:", folder); // Debugging: Log the folder
-            console.log("Filename:", fileName); // Debugging: Log the filename
+                console.log("Folder:", folder); // Debugging: Log the folder
+                console.log("Filename:", fileName); // Debugging: Log the filename
 
-            if (!folder || !fileName) {
-                console.error("Folder or filename is missing.");
-                return;
-            }
-
-            // Firebase Storage reference
-            const fileRef = ref(storage, `Training/${folder}/${fileName}`);
-
-            getDownloadURL(fileRef).then(function(url) {
-                var modalBody = document.getElementById("modalBodyContent");
-                var fileExtension = fileName.split('.').pop().toLowerCase();
-
-                console.log("File URL:", url); // Log the URL to ensure it's correct
-
-                if (fileExtension === "pdf") {
-                    modalBody.innerHTML = `<iframe src="${url}" width="100%" height="600px"></iframe>`;
-                } else if (fileExtension === "mp4") {
-                    modalBody.innerHTML = `<video id="modalVideo" width="100%" height="600px" controls><source src="${url}" type="video/mp4">Your browser does not support the video tag.</video>`;
-                } else if (fileExtension === "pptx") {
-                    modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
-                } else {
-                    modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
+                if (!folder || !fileName) {
+                    console.error("Folder or filename is missing.");
+                    return;
                 }
 
-                var fileModal = new bootstrap.Modal(document.getElementById('fileModal'));
-                fileModal.show();
-            }).catch(function(error) {
-                console.error("Error getting file URL: ", error);
-            });
+                // Firebase Storage reference
+                const fileRef = ref(storage, `Training/${folder}/${fileName}`);
+
+                getDownloadURL(fileRef).then(function (url) {
+                    var modalBody = document.getElementById("modalBodyContent");
+                    var fileExtension = fileName.split('.').pop().toLowerCase();
+
+                    console.log("File URL:", url); // Log the URL to ensure it's correct
+
+                    if (fileExtension === "pdf") {
+                        modalBody.innerHTML = `<iframe src="${url}" width="100%" height="600px"></iframe>`;
+                    } else if (fileExtension === "mp4") {
+                        modalBody.innerHTML = `<video id="modalVideo" width="100%" height="600px" controls><source src="${url}" type="video/mp4">Your browser does not support the video tag.</video>`;
+                    } else if (fileExtension === "pptx") {
+                        modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
+                    } else {
+                        modalBody.innerHTML = `<a href="${url}" target="_blank">Download and view ${fileName}</a>`;
+                    }
+
+                    var fileModal = new bootstrap.Modal(document.getElementById('fileModal'));
+                    fileModal.show();
+                }).catch(function (error) {
+                    console.error("Error getting file URL: ", error);
+                });
+            }
+        });
+
+        // Pause video when modal is closed
+        document.getElementById('fileModal').addEventListener('hidden.bs.modal', function () {
+            var video = document.getElementById('modalVideo');
+            if (video) {
+                video.pause();
+                video.currentTime = 0; // Optional: Reset the video to the beginning
+            }
+        });
+
+        // Chatbot initialization and visibility toggle
+        window.onload = function () {
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
+            chatbotWindow.style.display = 'none'; // Ensure the chatbot window is hidden by default
+
+            // Load existing conversation from localStorage
+            const savedConversation = localStorage.getItem('chatbotConversation');
+            if (savedConversation) {
+                conversationHistory = JSON.parse(savedConversation);
+                conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
+            }
+        };
+
+        // Toggle chatbot window visibility
+        const chatbotIcon = document.getElementById('aa-chatbot-icon');
+        chatbotIcon.addEventListener('click', function () {
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
+            if (chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '') {
+                chatbotWindow.style.display = 'block';
+            } else {
+                chatbotWindow.style.display = 'none';
+            }
+        });
+
+        // Resize functionality for the top-left handle
+        const resizeHandle = document.getElementById('aa-resize-handle');
+        let isResizing = false;
+
+        resizeHandle.addEventListener('mousedown', function (e) {
+            isResizing = true;
+            document.body.style.cursor = 'nwse-resize';
+            document.addEventListener('mousemove', resizeChatbotWindow);
+            document.addEventListener('mouseup', stopResizing);
+        });
+
+        function resizeChatbotWindow(e) {
+            if (!isResizing) return;
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
+            const newWidth = chatbotWindow.offsetWidth - (e.clientX - chatbotWindow.getBoundingClientRect().left);
+            const newHeight = chatbotWindow.offsetHeight - (e.clientY - chatbotWindow.getBoundingClientRect().top);
+
+            chatbotWindow.style.width = `${newWidth}px`;
+            chatbotWindow.style.height = `${newHeight}px`;
+
+            if (newWidth < 300) chatbotWindow.style.width = '300px';
+            if (newHeight < 350) chatbotWindow.style.height = '350px';
         }
-    });
 
-    // Pause video when modal is closed
-    document.getElementById('fileModal').addEventListener('hidden.bs.modal', function () {
-        var video = document.getElementById('modalVideo');
-        if (video) {
-            video.pause();
-            video.currentTime = 0; // Optional: Reset the video to the beginning
+        function stopResizing() {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+            document.removeEventListener('mousemove', resizeChatbotWindow);
+            document.removeEventListener('mouseup', stopResizing);
         }
-    });
-
-
-
-
-    // Toggle chatbot window visibility
-    const chatbotIcon = document.getElementById('aa-chatbot-icon');
-    const chatbotWindow = document.getElementById('aa-chatbot-window');
-    const resizeHandle = document.getElementById('aa-resize-handle');
-
-    // Ensure the chatbot window is hidden by default
-    window.onload = function () {
-        chatbotWindow.style.display = 'none';
-    };
-
-    chatbotIcon.addEventListener('click', function () {
-        if (chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '') {
-            chatbotWindow.style.display = 'block';
-        } else {
-            chatbotWindow.style.display = 'none';
-        }
-    });
-
-    // Resize functionality for the top-left handle
-    let isResizing = false;
-
-    resizeHandle.addEventListener('mousedown', function (e) {
-        isResizing = true;
-        document.body.style.cursor = 'nwse-resize';
-        document.addEventListener('mousemove', resizeChatbotWindow);
-        document.addEventListener('mouseup', stopResizing);
-    });
-
-    function resizeChatbotWindow(e) {
-        if (!isResizing) return;
-        // Calculate new dimensions
-        const newWidth = chatbotWindow.offsetWidth - (e.clientX - chatbotWindow.getBoundingClientRect().left);
-        const newHeight = chatbotWindow.offsetHeight - (e.clientY - chatbotWindow.getBoundingClientRect().top);
-
-        // Set the dimensions while maintaining the resizing from the top-left corner
-        chatbotWindow.style.width = `${newWidth}px`;
-        chatbotWindow.style.height = `${newHeight}px`;
-
-        // Ensure the window doesn't get too small
-        if (newWidth < 300) chatbotWindow.style.width = '300px';
-        if (newHeight < 350) chatbotWindow.style.height = '350px';
-    }
-
-    function stopResizing() {
-        isResizing = false;
-        document.body.style.cursor = 'default';
-        document.removeEventListener('mousemove', resizeChatbotWindow);
-        document.removeEventListener('mouseup', stopResizing);
-    }
-</script>
+    </script>
 </body>
+
 </html>

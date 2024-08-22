@@ -145,34 +145,32 @@
         </div>
     </div>
 
-
     <!-- Firebase SDKs for Modular Version -->
     <script type="module" src="js/firebase-config2.js"></script>
     <script src="js/chatbot2.js"></script>
     <script type="module">
-        // Firebase Authentication and Firestore imports for Modular Version
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, collection, orderBy, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
 
         const auth = getAuth();
         const db = getFirestore();
-        const storage = getStorage(); // Initialize Firebase Storage
+        const storage = getStorage();
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user && user.emailVerified) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    const firstName = userDoc.data().firstName;
-                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${firstName}`;
-                } else {
-                    document.getElementById('welcomeMessage').textContent = `Welcome back`;
-                }
-            } else {
-                window.location.href = "login.html";
+        // On page load, ensure the chatbot is hidden and load conversation history
+        window.onload = function () {
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
+            chatbotWindow.style.display = 'none'; // Ensure the chatbot window is hidden by default
+
+            // Load existing conversation from localStorage
+            const savedConversation = localStorage.getItem('chatbotConversation');
+            if (savedConversation) {
+                conversationHistory = JSON.parse(savedConversation);
+                conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
             }
-        });
+        };
 
+        // Sidebar toggle script
         document.getElementById('toggleButton').addEventListener('click', function () {
             var sidebar = document.getElementById('sidebarMenu');
             var content = document.getElementById('mainContent');
@@ -190,6 +188,20 @@
             $("#sidebar-placeholder").load("sidebar.html", function () {
                 $('[data-bs-toggle="collapse"]').collapse();
             });
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user && user.emailVerified) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    const firstName = userDoc.data().firstName;
+                    document.getElementById('welcomeMessage').textContent = `Welcome back, ${firstName}`;
+                } else {
+                    document.getElementById('welcomeMessage').textContent = `Welcome back`;
+                }
+            } else {
+                window.location.href = "login.html";
+            }
         });
 
         // Fetch and display the latest 5 messages
@@ -378,19 +390,12 @@
         fetchLatestTrainingFiles();
         fetchLatestForms();
 
-
-
-
         // Toggle chatbot window visibility
         const chatbotIcon = document.getElementById('aa-chatbot-icon');
         const chatbotWindow = document.getElementById('aa-chatbot-window');
         const resizeHandle = document.getElementById('aa-resize-handle');
 
         // Ensure the chatbot window is hidden by default
-        window.onload = function () {
-            chatbotWindow.style.display = 'none';
-        };
-
         chatbotIcon.addEventListener('click', function () {
             if (chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '') {
                 chatbotWindow.style.display = 'block';

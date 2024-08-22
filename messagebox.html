@@ -31,7 +31,7 @@
         <div class="resizable-container">
             <!-- Left Section: Message List -->
             <div class="left-panel" id="messageListContainer" style="padding: 20px 0 0 20px;">
-                <h2 class="mb-4" >Message Box</h2>
+                <h2 class="mb-4">Message Box</h2>
                 <div id="messageList" class="message-list">
                     <!-- Dynamic message headers will be inserted here -->
                 </div>
@@ -83,6 +83,7 @@
             </div>
         </div>
     </div>
+
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -259,21 +260,23 @@
             document.getElementById("messageContent").style.display = "none";
         }
 
+        // Chatbot initialization and visibility toggle
+        window.onload = function () {
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
+            chatbotWindow.style.display = 'none'; // Ensure the chatbot window is hidden by default
 
-
-
+            // Load existing conversation from localStorage
+            const savedConversation = localStorage.getItem('chatbotConversation');
+            if (savedConversation) {
+                conversationHistory = JSON.parse(savedConversation);
+                conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
+            }
+        };
 
         // Toggle chatbot window visibility
         const chatbotIcon = document.getElementById('aa-chatbot-icon');
-        const chatbotWindow = document.getElementById('aa-chatbot-window');
-        const resizeHandle = document.getElementById('aa-resize-handle');
-
-        // Ensure the chatbot window is hidden by default
-        window.onload = function () {
-            chatbotWindow.style.display = 'none';
-        };
-
         chatbotIcon.addEventListener('click', function () {
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
             if (chatbotWindow.style.display === 'none' || chatbotWindow.style.display === '') {
                 chatbotWindow.style.display = 'block';
             } else {
@@ -282,6 +285,7 @@
         });
 
         // Resize functionality for the top-left handle
+        const resizeHandle = document.getElementById('aa-resize-handle');
         let isResizing = false;
 
         resizeHandle.addEventListener('mousedown', function (e) {
@@ -293,15 +297,13 @@
 
         function resizeChatbotWindow(e) {
             if (!isResizing) return;
-            // Calculate new dimensions
+            const chatbotWindow = document.getElementById('aa-chatbot-window');
             const newWidth = chatbotWindow.offsetWidth - (e.clientX - chatbotWindow.getBoundingClientRect().left);
             const newHeight = chatbotWindow.offsetHeight - (e.clientY - chatbotWindow.getBoundingClientRect().top);
 
-            // Set the dimensions while maintaining the resizing from the top-left corner
             chatbotWindow.style.width = `${newWidth}px`;
             chatbotWindow.style.height = `${newHeight}px`;
 
-            // Ensure the window doesn't get too small
             if (newWidth < 300) chatbotWindow.style.width = '300px';
             if (newHeight < 350) chatbotWindow.style.height = '350px';
         }
