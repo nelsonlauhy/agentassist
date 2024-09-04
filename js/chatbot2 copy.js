@@ -2,7 +2,7 @@ let conversationHistory = [];
 
 // Load existing conversation from localStorage
 window.onload = function () {
-    const savedConversation = localStorage.getItem('chatbotConversation');
+    const savedConversation = localStorage.getItem('chatbotConversation'); // Changed to localStorage
     if (savedConversation) {
         conversationHistory = JSON.parse(savedConversation);
         conversationHistory.forEach(entry => displayMessage(entry.sender, entry.message));
@@ -28,24 +28,16 @@ async function sendMessage() {
     conversationHistory.push({ sender: 'You', message: userInput });
 
     // Save updated conversation to localStorage
-    localStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory));
+    localStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Changed to localStorage
 
-    // Determine the intent and handle accordingly
-    const intent = classifyIntent(userInput);
-    let response;
-    if (intent) {
-        response = handleIntent(intent);
-    } else {
-        response = await getResponse(userInput);
-    }
-
+    const response = await getResponse(userInput);
     displayMessage('Bot', response);
 
     // Store bot response in conversation history
     conversationHistory.push({ sender: 'Bot', message: response });
 
     // Save updated conversation to localStorage
-    localStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory));
+    localStorage.setItem('chatbotConversation', JSON.stringify(conversationHistory)); // Changed to localStorage
 }
 
 function displayMessage(sender, message) {
@@ -54,28 +46,6 @@ function displayMessage(sender, message) {
     messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
     chatbox.appendChild(messageElement);
     chatbox.scrollTop = chatbox.scrollHeight;
-}
-
-// Function to classify the intent based on the user's input
-function classifyIntent(userInput) {
-    if (userInput.match(/(support contact|IT support contact|email for (IT )?support)/i)) {
-        return 'it_support_contact';
-    }
-    return null; // Return null if no specific intent is matched
-}
-
-// Function to handle the intent and provide a response
-function handleIntent(intent) {
-    switch (intent) {
-        case 'it_support_contact':
-            return `
-                IT Support<br>
-                Email: itsupport@livingrealty.com<br>
-                Direct line: (905) 752-3522
-            `;
-        default:
-            return "I'm not sure how to help with that. Could you please clarify?";
-    }
 }
 
 async function getResponse(prompt) {
